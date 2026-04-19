@@ -1,0 +1,2186 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Singapore Mahjong — Learn to Play</title>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Serif+SC:wght@400;700;900&family=DM+Sans:wght@300;400;500;700&family=Playfair+Display:wght@700;900&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --red: #C0392B;
+    --dark-red: #922b21;
+    --gold: #D4AC0D;
+    --light-gold: #F9E79F;
+    --cream: #FDF6E3;
+    --dark: #1a0a00;
+    --tile-bg: #f5efe0;
+    --tile-border: #c8a96e;
+    --green-felt: #1a5c2a;
+    --green-light: #2d7a40;
+    --bamboo: #2E7D32;
+    --circles: #1565C0;
+    --chars: #C62828;
+    --winds: #4A148C;
+    --dragons: #E65100;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    font-family: 'DM Sans', sans-serif;
+    background: var(--green-felt);
+    background-image: 
+      radial-gradient(ellipse at 20% 50%, rgba(45,122,64,0.6) 0%, transparent 60%),
+      radial-gradient(ellipse at 80% 20%, rgba(26,92,42,0.8) 0%, transparent 50%),
+      repeating-linear-gradient(45deg, transparent, transparent 20px, rgba(0,0,0,0.03) 20px, rgba(0,0,0,0.03) 21px);
+    min-height: 100vh;
+    color: var(--dark);
+    overflow-x: hidden;
+  }
+
+  /* HEADER */
+  header {
+    background: linear-gradient(135deg, var(--dark-red) 0%, var(--red) 50%, #8B1A1A 100%);
+    padding: 2rem;
+    text-align: center;
+    position: relative;
+    border-bottom: 4px solid var(--gold);
+    box-shadow: 0 4px 20px rgba(0,0,0,0.4);
+    overflow: hidden;
+  }
+  header::before {
+    content: '麻將';
+    position: absolute;
+    font-family: 'Noto Serif SC', serif;
+    font-size: 12rem;
+    color: rgba(255,255,255,0.04);
+    top: -2rem;
+    left: 50%;
+    transform: translateX(-50%);
+    pointer-events: none;
+    letter-spacing: 1rem;
+  }
+  .header-badge {
+    display: inline-block;
+    background: var(--gold);
+    color: var(--dark);
+    font-size: 0.65rem;
+    font-weight: 700;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    padding: 0.25rem 1rem;
+    border-radius: 20px;
+    margin-bottom: 0.75rem;
+  }
+  header h1 {
+    font-family: 'Playfair Display', serif;
+    font-size: clamp(2rem, 5vw, 3.5rem);
+    color: #fff;
+    line-height: 1.1;
+    text-shadow: 2px 2px 8px rgba(0,0,0,0.4);
+  }
+  header h1 span { color: var(--gold); }
+  header p {
+    color: rgba(255,255,255,0.8);
+    margin-top: 0.5rem;
+    font-size: 1.05rem;
+    font-weight: 300;
+  }
+  .decorative-tiles {
+    display: flex;
+    justify-content: center;
+    gap: 0.5rem;
+    margin-top: 1.25rem;
+  }
+  .deco-tile {
+    width: 40px; height: 56px;
+    background: var(--tile-bg);
+    border: 2px solid var(--tile-border);
+    border-radius: 6px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.4rem;
+    box-shadow: 3px 3px 0 rgba(0,0,0,0.3), inset 0 1px 0 rgba(255,255,255,0.8);
+    animation: float 3s ease-in-out infinite;
+  }
+  .deco-tile:nth-child(2) { animation-delay: 0.3s; }
+  .deco-tile:nth-child(3) { animation-delay: 0.6s; }
+  .deco-tile:nth-child(4) { animation-delay: 0.9s; }
+  .deco-tile:nth-child(5) { animation-delay: 1.2s; }
+  @keyframes float {
+    0%,100% { transform: translateY(0); }
+    50% { transform: translateY(-5px); }
+  }
+
+  /* NAV PROGRESS */
+  .progress-nav {
+    background: rgba(0,0,0,0.35);
+    backdrop-filter: blur(10px);
+    border-bottom: 1px solid rgba(212,172,13,0.3);
+    padding: 0.75rem 1rem;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    overflow-x: auto;
+  }
+  .progress-nav::-webkit-scrollbar { height: 3px; }
+  .progress-nav::-webkit-scrollbar-thumb { background: var(--gold); }
+  .progress-steps {
+    display: flex;
+    gap: 0.4rem;
+    min-width: max-content;
+    margin: 0 auto;
+    max-width: 900px;
+  }
+  .step-btn {
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+    padding: 0.4rem 0.75rem;
+    border-radius: 20px;
+    border: 1.5px solid rgba(255,255,255,0.2);
+    background: transparent;
+    color: rgba(255,255,255,0.6);
+    font-family: 'DM Sans', sans-serif;
+    font-size: 0.72rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.2s;
+    white-space: nowrap;
+  }
+  .step-btn .num {
+    width: 18px; height: 18px;
+    border-radius: 50%;
+    background: rgba(255,255,255,0.15);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 0.65rem;
+    font-weight: 700;
+  }
+  .step-btn:hover { border-color: var(--gold); color: var(--gold); }
+  .step-btn.active {
+    background: var(--gold);
+    border-color: var(--gold);
+    color: var(--dark);
+    font-weight: 700;
+    box-shadow: 0 2px 10px rgba(212,172,13,0.4);
+  }
+  .step-btn.active .num { background: rgba(0,0,0,0.2); }
+  .step-btn.done { border-color: rgba(212,172,13,0.5); color: rgba(212,172,13,0.8); }
+  .step-btn.done .num { background: rgba(212,172,13,0.2); }
+
+  /* MAIN CONTENT */
+  main {
+    max-width: 860px;
+    margin: 0 auto;
+    padding: 2rem 1rem 4rem;
+  }
+
+  /* SECTION CARD */
+  .section-card {
+    background: var(--cream);
+    border-radius: 16px;
+    overflow: hidden;
+    box-shadow: 0 8px 40px rgba(0,0,0,0.35), 0 2px 0 var(--gold);
+    display: none;
+    animation: slideIn 0.35s ease;
+  }
+  .section-card.active { display: block; }
+  @keyframes slideIn {
+    from { opacity: 0; transform: translateY(16px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  .card-header {
+    background: linear-gradient(135deg, var(--red), var(--dark-red));
+    padding: 1.5rem 2rem;
+    border-bottom: 3px solid var(--gold);
+    display: flex;
+    align-items: flex-start;
+    gap: 1rem;
+  }
+  .step-number {
+    font-family: 'Noto Serif SC', serif;
+    font-size: 3rem;
+    color: var(--gold);
+    line-height: 1;
+    opacity: 0.9;
+    min-width: 60px;
+  }
+  .card-header-text h2 {
+    font-family: 'Playfair Display', serif;
+    font-size: 1.6rem;
+    color: #fff;
+  }
+  .card-header-text p {
+    color: rgba(255,255,255,0.75);
+    font-size: 0.9rem;
+    margin-top: 0.25rem;
+    font-weight: 300;
+  }
+
+  .card-body { padding: 2rem; }
+
+  /* TILE DISPLAY */
+  .tile {
+    display: inline-flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    width: 52px; height: 72px;
+    background: linear-gradient(160deg, #fff 0%, var(--tile-bg) 100%);
+    border: 2px solid var(--tile-border);
+    border-radius: 8px;
+    box-shadow: 3px 3px 0 rgba(0,0,0,0.2), inset 0 1px 0 rgba(255,255,255,0.9);
+    font-size: 0.75rem;
+    font-weight: 600;
+    cursor: default;
+    position: relative;
+    transition: transform 0.15s;
+    vertical-align: middle;
+  }
+  .tile:hover { transform: translateY(-3px); }
+  .tile .tile-top { font-size: 1.1rem; line-height: 1; }
+  .tile .tile-bot { font-size: 0.65rem; letter-spacing: -0.02em; }
+  .tile.bamboo { color: var(--bamboo); }
+  .tile.circles { color: var(--circles); }
+  .tile.chars { color: var(--chars); }
+  .tile.wind { color: var(--winds); }
+  .tile.dragon { color: var(--dragons); }
+  .tile.flower { color: #00796B; }
+  .tile.back {
+    background: linear-gradient(135deg, #8B1A1A, var(--dark-red));
+    border-color: #5a1010;
+    color: #fff;
+  }
+
+  .tile-row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    align-items: flex-end;
+    margin: 0.75rem 0;
+  }
+  .tile-label {
+    font-size: 0.7rem;
+    color: #888;
+    font-weight: 600;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    margin-bottom: 0.4rem;
+    margin-top: 0.75rem;
+  }
+
+  /* TEXT STYLES */
+  .intro-text {
+    font-size: 1.05rem;
+    line-height: 1.7;
+    color: #3a2010;
+    margin-bottom: 1.25rem;
+  }
+  h3 {
+    font-family: 'Playfair Display', serif;
+    font-size: 1.15rem;
+    color: var(--dark-red);
+    margin: 1.5rem 0 0.5rem;
+    border-left: 3px solid var(--gold);
+    padding-left: 0.75rem;
+  }
+
+  .info-box {
+    background: linear-gradient(135deg, #fff8e6, #fffbf0);
+    border: 1.5px solid var(--gold);
+    border-radius: 10px;
+    padding: 1rem 1.25rem;
+    margin: 1rem 0;
+    font-size: 0.92rem;
+    line-height: 1.6;
+    color: #4a3000;
+  }
+  .info-box.red {
+    background: linear-gradient(135deg, #fff0f0, #fff5f5);
+    border-color: var(--red);
+    color: #4a0000;
+  }
+  .info-box.green {
+    background: linear-gradient(135deg, #f0fff4, #f5fff8);
+    border-color: #2e7d32;
+    color: #004a10;
+  }
+  .info-box strong { display: block; margin-bottom: 0.3rem; font-size: 0.8rem; letter-spacing: 0.1em; text-transform: uppercase; opacity: 0.7; }
+
+  .sg-tag {
+    display: inline-block;
+    background: var(--red);
+    color: #fff;
+    font-size: 0.65rem;
+    font-weight: 700;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    padding: 0.15rem 0.5rem;
+    border-radius: 4px;
+    margin-left: 0.4rem;
+    vertical-align: middle;
+  }
+
+  ul.rules-list {
+    list-style: none;
+    margin: 0.5rem 0;
+  }
+  ul.rules-list li {
+    padding: 0.4rem 0 0.4rem 1.5rem;
+    position: relative;
+    font-size: 0.93rem;
+    line-height: 1.55;
+    color: #3a2010;
+    border-bottom: 1px solid rgba(0,0,0,0.05);
+  }
+  ul.rules-list li::before {
+    content: '◆';
+    position: absolute;
+    left: 0;
+    color: var(--gold);
+    font-size: 0.6rem;
+    top: 0.55rem;
+  }
+
+  /* MELD DISPLAY */
+  .meld-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+    gap: 1rem;
+    margin: 1rem 0;
+  }
+  .meld-card {
+    background: #fff;
+    border: 1.5px solid #e0d0b0;
+    border-radius: 10px;
+    padding: 1rem;
+    text-align: center;
+    transition: box-shadow 0.2s;
+  }
+  .meld-card:hover { box-shadow: 0 4px 16px rgba(0,0,0,0.12); }
+  .meld-card .meld-name {
+    font-family: 'Playfair Display', serif;
+    font-size: 1rem;
+    color: var(--dark-red);
+    margin-bottom: 0.25rem;
+  }
+  .meld-card .meld-cn {
+    font-family: 'Noto Serif SC', serif;
+    font-size: 0.85rem;
+    color: #888;
+    margin-bottom: 0.6rem;
+  }
+  .meld-card .meld-desc {
+    font-size: 0.8rem;
+    color: #666;
+    line-height: 1.45;
+    margin-top: 0.5rem;
+  }
+
+  /* TABLE VISUAL */
+  .table-visual {
+    background: var(--green-felt);
+    background-image: repeating-linear-gradient(45deg, transparent, transparent 10px, rgba(0,0,0,0.05) 10px, rgba(0,0,0,0.05) 11px);
+    border-radius: 12px;
+    padding: 1.5rem;
+    margin: 1rem 0;
+    border: 3px solid #0d3d1a;
+    box-shadow: inset 0 2px 10px rgba(0,0,0,0.3);
+    position: relative;
+  }
+  .table-seats {
+    display: grid;
+    grid-template-areas: 
+      ". north ."
+      "west center east"
+      ". south .";
+    gap: 0.5rem;
+    max-width: 320px;
+    margin: 0 auto;
+  }
+  .seat {
+    background: rgba(0,0,0,0.3);
+    border: 1.5px solid rgba(255,255,255,0.2);
+    border-radius: 8px;
+    padding: 0.5rem 0.75rem;
+    text-align: center;
+    color: #fff;
+    font-size: 0.78rem;
+    font-weight: 600;
+  }
+  .seat.you { background: rgba(212,172,13,0.3); border-color: var(--gold); color: var(--gold); }
+  .seat-north { grid-area: north; }
+  .seat-west { grid-area: west; }
+  .seat-center { grid-area: center; font-size: 1.5rem; display:flex; align-items:center; justify-content:center; background: rgba(0,0,0,0.15); }
+  .seat-east { grid-area: east; }
+  .seat-south { grid-area: south; }
+
+  /* TURN FLOW */
+  .turn-flow {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    flex-wrap: wrap;
+    margin: 1rem 0;
+    justify-content: center;
+  }
+  .flow-step {
+    background: #fff;
+    border: 2px solid #e0d0b0;
+    border-radius: 8px;
+    padding: 0.5rem 0.75rem;
+    font-size: 0.82rem;
+    font-weight: 600;
+    color: var(--dark-red);
+    text-align: center;
+    min-width: 80px;
+  }
+  .flow-step .flow-icon { font-size: 1.3rem; display: block; }
+  .flow-arrow { color: var(--gold); font-size: 1.2rem; }
+
+  /* WINNING HAND */
+  .winning-display {
+    background: linear-gradient(135deg, #fffbf0, #fff8e6);
+    border: 2px solid var(--gold);
+    border-radius: 12px;
+    padding: 1.25rem;
+    margin: 1rem 0;
+    text-align: center;
+  }
+  .winning-display .win-label {
+    font-size: 0.7rem;
+    text-transform: uppercase;
+    letter-spacing: 0.15em;
+    color: #888;
+    margin-bottom: 0.4rem;
+  }
+
+  /* INTERACTIVE QUIZ */
+  .quiz-section {
+    background: linear-gradient(135deg, #1a0a00, #2d1000);
+    border-radius: 12px;
+    padding: 1.5rem;
+    margin: 1.5rem 0;
+    border: 2px solid var(--gold);
+  }
+  .quiz-section h3 { color: var(--gold); border-left-color: var(--red); margin-top: 0; }
+  .quiz-q { color: rgba(255,255,255,0.9); font-size: 0.95rem; line-height: 1.6; margin-bottom: 1rem; }
+  .quiz-options {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+  .quiz-opt {
+    background: rgba(255,255,255,0.07);
+    border: 1.5px solid rgba(255,255,255,0.15);
+    border-radius: 8px;
+    padding: 0.65rem 1rem;
+    color: rgba(255,255,255,0.8);
+    font-size: 0.88rem;
+    cursor: pointer;
+    transition: all 0.2s;
+    text-align: left;
+  }
+  .quiz-opt:hover { background: rgba(212,172,13,0.15); border-color: var(--gold); }
+  .quiz-opt.correct { background: rgba(46,125,50,0.3); border-color: #4caf50; color: #a5d6a7; }
+  .quiz-opt.wrong { background: rgba(192,57,43,0.3); border-color: var(--red); color: #ef9a9a; }
+  .quiz-feedback {
+    margin-top: 0.75rem;
+    padding: 0.75rem;
+    border-radius: 8px;
+    font-size: 0.88rem;
+    line-height: 1.5;
+    display: none;
+  }
+  .quiz-feedback.show { display: block; }
+  .quiz-feedback.ok { background: rgba(46,125,50,0.2); border: 1px solid #4caf50; color: #a5d6a7; }
+  .quiz-feedback.bad { background: rgba(192,57,43,0.2); border: 1px solid var(--red); color: #ef9a9a; }
+
+  /* SCORING TABLE */
+  .score-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.85rem;
+    margin: 1rem 0;
+    border-radius: 8px;
+    overflow: hidden;
+  }
+  .score-table th {
+    background: var(--red);
+    color: #fff;
+    padding: 0.65rem 0.75rem;
+    text-align: left;
+    font-weight: 600;
+    font-size: 0.78rem;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+  }
+  .score-table td {
+    padding: 0.6rem 0.75rem;
+    border-bottom: 1px solid #e8d5b0;
+    color: #3a2010;
+    vertical-align: top;
+  }
+  .score-table tr:nth-child(even) td { background: rgba(212,172,13,0.06); }
+  .score-table tr:last-child td { border-bottom: none; }
+  .pts {
+    font-family: 'Playfair Display', serif;
+    color: var(--dark-red);
+    font-weight: 700;
+  }
+
+  /* NAVIGATION BUTTONS */
+  .nav-buttons {
+    display: flex;
+    gap: 1rem;
+    margin-top: 2rem;
+    justify-content: space-between;
+  }
+  .btn {
+    padding: 0.75rem 2rem;
+    border-radius: 8px;
+    border: none;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 0.9rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+  }
+  .btn-prev {
+    background: rgba(0,0,0,0.15);
+    color: var(--cream);
+    border: 1.5px solid rgba(255,255,255,0.2);
+  }
+  .btn-prev:hover { background: rgba(0,0,0,0.25); }
+  .btn-next {
+    background: var(--gold);
+    color: var(--dark);
+    margin-left: auto;
+    box-shadow: 0 2px 10px rgba(212,172,13,0.4);
+  }
+  .btn-next:hover { background: #e8c219; transform: translateY(-1px); box-shadow: 0 4px 16px rgba(212,172,13,0.5); }
+  .btn:disabled { opacity: 0.4; cursor: not-allowed; transform: none; }
+
+  /* COMPLETION */
+  .completion-card {
+    text-align: center;
+    padding: 1rem 0;
+  }
+  .completion-card .big-emoji { font-size: 4rem; margin-bottom: 1rem; }
+  .completion-card h2 {
+    font-family: 'Playfair Display', serif;
+    font-size: 2rem;
+    color: var(--dark-red);
+    margin-bottom: 0.5rem;
+  }
+  .completion-card p { color: #666; font-size: 0.95rem; line-height: 1.6; }
+
+  /* CHEAT SHEET */
+  .cheatsheet-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 0.75rem;
+    margin: 1rem 0;
+  }
+  .cs-item {
+    background: #fff;
+    border: 1.5px solid #e0d0b0;
+    border-radius: 8px;
+    padding: 0.75rem;
+    font-size: 0.83rem;
+  }
+  .cs-item .cs-title {
+    font-weight: 700;
+    color: var(--dark-red);
+    font-size: 0.78rem;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    margin-bottom: 0.3rem;
+  }
+  .cs-item .cs-val { color: #3a2010; line-height: 1.5; }
+
+  /* RESPONSIVE */
+  @media (max-width: 600px) {
+    .card-body { padding: 1.25rem; }
+    .meld-grid { grid-template-columns: 1fr 1fr; }
+    .cheatsheet-grid { grid-template-columns: 1fr; }
+    .step-number { font-size: 2rem; min-width: 40px; }
+    .tile { width: 40px; height: 56px; font-size: 0.65rem; }
+    .tile .tile-top { font-size: 0.9rem; }
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="header-badge">🇸🇬 Singapore Rules</div>
+  <h1>Learn <span>Mahjong</span><br>The Singaporean Way</h1>
+  <p>Your complete beginner's guide — from tiles to winning 🀄</p>
+  <div class="decorative-tiles">
+    <div class="deco-tile">🀇</div>
+    <div class="deco-tile">🀙</div>
+    <div class="deco-tile">🀐</div>
+    <div class="deco-tile">🀀</div>
+    <div class="deco-tile">🀄</div>
+  </div>
+</header>
+
+<nav class="progress-nav">
+  <div class="progress-steps" id="progressSteps"></div>
+</nav>
+
+<main>
+  <!-- SECTION 1: What is Mahjong -->
+  <div class="section-card active" id="section-0">
+    <div class="card-header">
+      <div class="step-number">一</div>
+      <div class="card-header-text">
+        <h2>What is Mahjong?</h2>
+        <p>The basics before you even touch a tile</p>
+      </div>
+    </div>
+    <div class="card-body">
+      <p class="intro-text">
+        Mahjong (麻將) is a tile-based game for <strong>4 players</strong>. Think of it like a super fun version of Rummy — you draw tiles, discard tiles, and try to be the first to assemble a complete winning hand.
+      </p>
+      <p class="intro-text">
+        Singapore Mahjong has its own unique rules — it's <strong>faster, simpler, and cashier-friendly</strong> compared to Hong Kong or Chinese styles. It's what your aunties play at CNY. 🧧
+      </p>
+
+      <div class="table-visual">
+        <div class="table-seats">
+          <div class="seat seat-north">North<br>🀃</div>
+          <div class="seat seat-west">West<br>🀁</div>
+          <div class="seat seat-center">🀄</div>
+          <div class="seat seat-east">East<br>🀀</div>
+          <div class="seat seat-south you">You 😊<br>South 🀂</div>
+        </div>
+      </div>
+
+      <h3>The Goal</h3>
+      <ul class="rules-list">
+        <li>Collect <strong>14 tiles</strong> that form a winning hand (胡牌 — "Hu Pai")</li>
+        <li>Be the first player to win. Declare "HU!" (胡) when you win</li>
+        <li>A winning hand = <strong>4 sets + 1 pair</strong> (with some bonus patterns)</li>
+      </ul>
+
+      <div class="info-box">
+        <strong>🃏 Quick Facts</strong>
+        ✅ 4 players &nbsp;|&nbsp; ✅ 144 tiles &nbsp;|&nbsp; ✅ Takes ~1–2 hours per session<br>
+        ✅ Each round: East player goes first &nbsp;|&nbsp; ✅ Points = cash (usually $0.10–$0.50 per point)
+      </div>
+
+      <div class="quiz-section">
+        <h3>Quick Check 🤔</h3>
+        <p class="quiz-q">How many tiles do you need in your hand to WIN in Singapore Mahjong?</p>
+        <div class="quiz-options" id="q1">
+          <button class="quiz-opt" onclick="checkQuiz(this, 'q1', false)">13 tiles</button>
+          <button class="quiz-opt" onclick="checkQuiz(this, 'q1', true)">14 tiles</button>
+          <button class="quiz-opt" onclick="checkQuiz(this, 'q1', false)">16 tiles</button>
+          <button class="quiz-opt" onclick="checkQuiz(this, 'q1', false)">Any number</button>
+        </div>
+        <div class="quiz-feedback" id="q1-feedback"></div>
+      </div>
+
+      <div class="nav-buttons">
+        <button class="btn btn-prev" disabled>← Back</button>
+        <button class="btn btn-next" onclick="goToSection(1)">The Tiles →</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- SECTION 2: The Tiles -->
+  <div class="section-card" id="section-1">
+    <div class="card-header">
+      <div class="step-number">二</div>
+      <div class="card-header-text">
+        <h2>Meet the Tiles</h2>
+        <p>144 tiles, 6 types — let's break it down</p>
+      </div>
+    </div>
+    <div class="card-body">
+      <p class="intro-text">There are <strong>144 tiles</strong> in Singapore Mahjong. Don't panic — they're grouped into easy-to-remember categories.</p>
+
+      <h3>🎋 Bamboo (索 Suō) — 36 tiles</h3>
+      <p style="font-size:0.88rem; color:#555; margin-bottom:0.5rem;">Tiles numbered 1–9. Each appears 4 times. The 1-Bamboo usually looks like a bird 🐦</p>
+      <div class="tile-row">
+        <div class="tile bamboo"><span class="tile-top">🀐</span><span class="tile-bot">1</span></div>
+        <div class="tile bamboo"><span class="tile-top">🀑</span><span class="tile-bot">2</span></div>
+        <div class="tile bamboo"><span class="tile-top">🀒</span><span class="tile-bot">3</span></div>
+        <div class="tile bamboo"><span class="tile-top">🀓</span><span class="tile-bot">4</span></div>
+        <div class="tile bamboo"><span class="tile-top">🀔</span><span class="tile-bot">5</span></div>
+        <div class="tile bamboo"><span class="tile-top">🀕</span><span class="tile-bot">6</span></div>
+        <div class="tile bamboo"><span class="tile-top">🀖</span><span class="tile-bot">7</span></div>
+        <div class="tile bamboo"><span class="tile-top">🀗</span><span class="tile-bot">8</span></div>
+        <div class="tile bamboo"><span class="tile-top">🀘</span><span class="tile-bot">9</span></div>
+      </div>
+
+      <h3>⭕ Circles (筒 Tǒng) — 36 tiles</h3>
+      <p style="font-size:0.88rem; color:#555; margin-bottom:0.5rem;">Tiles numbered 1–9. Each appears 4 times. They look like circles/coins.</p>
+      <div class="tile-row">
+        <div class="tile circles"><span class="tile-top">🀙</span><span class="tile-bot">1</span></div>
+        <div class="tile circles"><span class="tile-top">🀚</span><span class="tile-bot">2</span></div>
+        <div class="tile circles"><span class="tile-top">🀛</span><span class="tile-bot">3</span></div>
+        <div class="tile circles"><span class="tile-top">🀜</span><span class="tile-bot">4</span></div>
+        <div class="tile circles"><span class="tile-top">🀝</span><span class="tile-bot">5</span></div>
+        <div class="tile circles"><span class="tile-top">🀞</span><span class="tile-bot">6</span></div>
+        <div class="tile circles"><span class="tile-top">🀟</span><span class="tile-bot">7</span></div>
+        <div class="tile circles"><span class="tile-top">🀠</span><span class="tile-bot">8</span></div>
+        <div class="tile circles"><span class="tile-top">🀡</span><span class="tile-bot">9</span></div>
+      </div>
+
+      <h3>🀇 Characters (萬 Wàn) — 36 tiles</h3>
+      <p style="font-size:0.88rem; color:#555; margin-bottom:0.5rem;">Tiles numbered 1–9. Each appears 4 times. The Chinese character 萬 (ten thousand) appears on each.</p>
+      <div class="tile-row">
+        <div class="tile chars"><span class="tile-top">🀇</span><span class="tile-bot">1</span></div>
+        <div class="tile chars"><span class="tile-top">🀈</span><span class="tile-bot">2</span></div>
+        <div class="tile chars"><span class="tile-top">🀉</span><span class="tile-bot">3</span></div>
+        <div class="tile chars"><span class="tile-top">🀊</span><span class="tile-bot">4</span></div>
+        <div class="tile chars"><span class="tile-top">🀋</span><span class="tile-bot">5</span></div>
+        <div class="tile chars"><span class="tile-top">🀌</span><span class="tile-bot">6</span></div>
+        <div class="tile chars"><span class="tile-top">🀍</span><span class="tile-bot">7</span></div>
+        <div class="tile chars"><span class="tile-top">🀎</span><span class="tile-bot">8</span></div>
+        <div class="tile chars"><span class="tile-top">🀏</span><span class="tile-bot">9</span></div>
+      </div>
+
+      <h3>💨 Winds (風 Fēng) — 16 tiles</h3>
+      <p style="font-size:0.88rem; color:#555; margin-bottom:0.5rem;">East (東), West (西), South (南), North (北). Each appears 4 times.</p>
+      <div class="tile-row">
+        <div class="tile wind"><span class="tile-top">🀀</span><span class="tile-bot">East</span></div>
+        <div class="tile wind"><span class="tile-top">🀁</span><span class="tile-bot">South</span></div>
+        <div class="tile wind"><span class="tile-top">🀂</span><span class="tile-bot">West</span></div>
+        <div class="tile wind"><span class="tile-top">🀃</span><span class="tile-bot">North</span></div>
+      </div>
+
+      <h3>🐉 Dragons (中發白) — 12 tiles</h3>
+      <p style="font-size:0.88rem; color:#555; margin-bottom:0.5rem;">Red Dragon 中 (Zhōng), Green Dragon 發 (Fā), White Dragon 白 (Bái). Each appears 4 times.</p>
+      <div class="tile-row">
+        <div class="tile dragon"><span class="tile-top">🀄</span><span class="tile-bot">Red</span></div>
+        <div class="tile dragon" style="color: var(--bamboo)"><span class="tile-top">🀅</span><span class="tile-bot">Green</span></div>
+        <div class="tile dragon" style="color: #555"><span class="tile-top">🀆</span><span class="tile-bot">White</span></div>
+      </div>
+
+      <h3>🌸 Flowers & Seasons — 8 bonus tiles</h3>
+      <div class="info-box">
+        <strong>🇸🇬 Singapore Rule</strong>
+        Flowers (1–4) and Seasons (1–4) are <strong>bonus tiles</strong>. When you draw one, immediately place it face-up in front of you and draw a replacement tile from the <em>back of the wall</em> (called a "kong draw"). They don't count toward your winning hand but give you bonus points!
+      </div>
+      <div class="tile-row">
+        <div class="tile flower"><span class="tile-top">🌸</span><span class="tile-bot">F1</span></div>
+        <div class="tile flower"><span class="tile-top">🌿</span><span class="tile-bot">F2</span></div>
+        <div class="tile flower"><span class="tile-top">🌺</span><span class="tile-bot">F3</span></div>
+        <div class="tile flower"><span class="tile-top">🍂</span><span class="tile-bot">F4</span></div>
+        <div class="tile flower"><span class="tile-top">🌱</span><span class="tile-bot">S1</span></div>
+        <div class="tile flower"><span class="tile-top">☀️</span><span class="tile-bot">S2</span></div>
+        <div class="tile flower"><span class="tile-top">🍁</span><span class="tile-bot">S3</span></div>
+        <div class="tile flower"><span class="tile-top">❄️</span><span class="tile-bot">S4</span></div>
+      </div>
+
+      <h3>🐱 Animals (動物牌) — 4 bonus tiles <span class="sg-tag">Singapore / Malaysia Only</span></h3>
+      <div class="info-box" style="margin-bottom:0.75rem;">
+        <strong>🇸🇬 Uniquely Singapore/Malaysian</strong>
+        The 4 Animal tiles are <strong>extra bonus tiles</strong> found only in Singapore and Malaysian Mahjong sets. They sit <em>outside</em> the 144-tile wall entirely — kept separately and placed face-up when drawn. Like flowers, draw one → reveal it → draw a replacement from the back of the wall.
+      </div>
+
+      <!-- Animal tile display -->
+      <div class="tile-row" style="justify-content:center; gap:1rem; margin:1rem 0;">
+        <div style="text-align:center;">
+          <div class="tile flower" style="width:64px; height:88px; font-size:2rem; margin:0 auto;">🐱</div>
+          <div style="margin-top:0.4rem; font-size:0.78rem; font-weight:700; color:#00796B;">CAT<br>貓</div>
+        </div>
+        <div style="text-align:center;">
+          <div class="tile flower" style="width:64px; height:88px; font-size:2rem; margin:0 auto;">🐭</div>
+          <div style="margin-top:0.4rem; font-size:0.78rem; font-weight:700; color:#00796B;">MOUSE<br>老鼠</div>
+        </div>
+        <div style="text-align:center;">
+          <div class="tile flower" style="width:64px; height:88px; font-size:2rem; margin:0 auto;">🐓</div>
+          <div style="margin-top:0.4rem; font-size:0.78rem; font-weight:700; color:#00796B;">ROOSTER<br>雞</div>
+        </div>
+        <div style="text-align:center;">
+          <div class="tile flower" style="width:64px; height:88px; font-size:2rem; margin:0 auto;">🐛</div>
+          <div style="margin-top:0.4rem; font-size:0.78rem; font-weight:700; color:#00796B;">CENTIPEDE<br>蜈蚣</div>
+        </div>
+      </div>
+
+      <!-- Predator pairs -->
+      <h3>猫咬老鼠 & 鸡咬蜈蚣 — The Predator Bonus!</h3>
+      <p style="font-size:0.93rem; color:#3a2010; line-height:1.65; margin-bottom:0.75rem;">
+        This is the fun part. The 4 animals form two <strong>predator–prey pairs</strong>. If you hold BOTH tiles in a pair, you collect a <em>immediate bonus payment</em> from all other players — on top of anything else!
+      </p>
+
+      <div style="display:grid; grid-template-columns:1fr 1fr; gap:1rem; margin:0.75rem 0 1rem;">
+        <div style="background:linear-gradient(135deg,#fff8f0,#fff3e8); border:2px solid #E65100; border-radius:12px; padding:1.1rem; text-align:center;">
+          <div style="font-size:2rem; margin-bottom:0.3rem;">🐱 → 🐭</div>
+          <div style="font-family:'Noto Serif SC',serif; font-size:1.1rem; color:#E65100; font-weight:700; margin-bottom:0.2rem;">猫咬老鼠</div>
+          <div style="font-size:0.75rem; color:#888; margin-bottom:0.6rem; font-style:italic;">"Cat bites Mouse"</div>
+          <div style="font-size:0.82rem; color:#4a2000; line-height:1.5;">
+            Hold BOTH Cat 🐱 <em>and</em> Mouse 🐭 → collect bonus from all 3 players immediately
+          </div>
+        </div>
+        <div style="background:linear-gradient(135deg,#f0f8f0,#e8f5e8); border:2px solid #2E7D32; border-radius:12px; padding:1.1rem; text-align:center;">
+          <div style="font-size:2rem; margin-bottom:0.3rem;">🐓 → 🐛</div>
+          <div style="font-family:'Noto Serif SC',serif; font-size:1.1rem; color:#2E7D32; font-weight:700; margin-bottom:0.2rem;">鸡咬蜈蚣</div>
+          <div style="font-size:0.75rem; color:#888; margin-bottom:0.6rem; font-style:italic;">"Rooster bites Centipede"</div>
+          <div style="font-size:0.82rem; color:#003a10; line-height:1.5;">
+            Hold BOTH Rooster 🐓 <em>and</em> Centipede 🐛 → collect bonus from all 3 players immediately
+          </div>
+        </div>
+      </div>
+
+      <div class="info-box green">
+        <strong>💰 Animal Bonus Payout Rules</strong>
+        When you have both animals in a predator pair:<br>
+        • Reveal them immediately (as soon as you have both)<br>
+        • <strong>All 3 other players pay you</strong> the agreed animal bonus (e.g. $1–$3 per pair, agreed before game)<br>
+        • This happens live mid-game — you don't have to wait until someone wins<br>
+        • If you hold all 4 animals (猫老鼠鸡蜈蚣), some tables rule you collect <strong>double</strong> from everyone!
+      </div>
+
+      <div class="info-box red">
+        <strong>⚠️ Important: Animals Are Separate from the Wall</strong>
+        The 4 animal tiles are NOT shuffled into the 144-tile wall. They are set aside before building the wall, then mixed into the deal separately (usually placed face-down near the kong end). When you draw one, treat it like a flower — reveal immediately and draw a replacement.
+      </div>
+
+      <div class="nav-buttons">
+        <button class="btn btn-prev" onclick="goToSection(0)">← Back</button>
+        <button class="btn btn-next" onclick="goToSection(2)">Setting Up →</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- SECTION 3: Setup -->
+  <div class="section-card" id="section-2">
+    <div class="card-header">
+      <div class="step-number">三</div>
+      <div class="card-header-text">
+        <h2>Setting Up the Game</h2>
+        <p>Building the wall and dealing tiles</p>
+      </div>
+    </div>
+    <div class="card-body">
+      <p class="intro-text">Before the fun begins, everyone helps set up the "wall" and deal tiles. And before ANY of that — you need to know which direction things go!</p>
+
+      <h3>🔄 Clockwise vs Anti-Clockwise — Know This First!</h3>
+      <p style="font-size:0.93rem; color:#3a2010; line-height:1.65; margin-bottom:0.75rem;">
+        In Mahjong, the table has two different directions happening at once. This confuses beginners the most, so let's nail it right here.
+      </p>
+
+      <div style="display:grid; grid-template-columns:1fr 1fr; gap:1rem; margin:0.75rem 0 1.25rem;">
+        <div class="info-box" style="margin:0;">
+          <strong>🔁 ANTI-CLOCKWISE (逆時針)<br>— Turn Order & Dealing</strong>
+          Play moves <strong>anti-clockwise</strong> around the table:<br><br>
+          East → North → West → South → East…<br><br>
+          Think of it as: the person to your <strong>RIGHT</strong> goes after you. Dealing also goes anti-clockwise.
+        </div>
+        <div class="info-box red" style="margin:0;">
+          <strong>🔃 CLOCKWISE (順時針)<br>— Wind Rotation</strong>
+          After each round, the East (dealer) seat rotates <strong>clockwise</strong>:<br><br>
+          East seat → passes to the player on East's left<br><br>
+          i.e. the <strong>seat</strong> rotates clockwise even though <strong>play</strong> goes anti-clockwise.
+        </div>
+      </div>
+
+      <!-- Interactive Direction Diagram -->
+      <div class="table-visual" style="padding:1.25rem 1rem;">
+        <div style="text-align:center; color:rgba(255,255,255,0.6); font-size:0.72rem; letter-spacing:0.1em; text-transform:uppercase; margin-bottom:0.75rem;">Seating & Direction Diagram</div>
+        <div style="position:relative; max-width:340px; margin:0 auto;">
+          <!-- Seats -->
+          <div style="display:grid; grid-template-areas: '. north .' 'west center east' '. south .'; gap:0.5rem;">
+            <div style="grid-area:north; background:rgba(0,0,0,0.3); border:1.5px solid rgba(255,255,255,0.2); border-radius:8px; padding:0.5rem 0.75rem; text-align:center; color:#fff; font-size:0.78rem; font-weight:600;">
+              North 🀃<br><span style="font-size:0.65rem; color:rgba(255,255,255,0.5);">3rd to draw</span>
+            </div>
+            <div style="grid-area:west; background:rgba(0,0,0,0.3); border:1.5px solid rgba(255,255,255,0.2); border-radius:8px; padding:0.5rem 0.75rem; text-align:center; color:#fff; font-size:0.78rem; font-weight:600;">
+              West 🀂<br><span style="font-size:0.65rem; color:rgba(255,255,255,0.5);">4th to draw</span>
+            </div>
+            <div style="grid-area:center; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:0.35rem; padding:0.5rem;">
+              <div style="color:rgba(255,255,255,0.5); font-size:0.65rem; letter-spacing:0.05em;">PLAY ORDER</div>
+              <div style="color:var(--gold); font-size:0.8rem; font-weight:700;">↖ anti-clockwise</div>
+              <div style="color:rgba(255,255,255,0.3); font-size:0.6rem;">E→N→W→S→E</div>
+            </div>
+            <div style="grid-area:east; background:rgba(212,172,13,0.25); border:2px solid var(--gold); border-radius:8px; padding:0.5rem 0.75rem; text-align:center; color:var(--gold); font-size:0.78rem; font-weight:700;">
+              East 🀀<br><span style="font-size:0.65rem; color:rgba(212,172,13,0.7);">DEALER — goes 1st</span>
+            </div>
+            <div style="grid-area:south; background:rgba(192,57,43,0.25); border:1.5px solid var(--red); border-radius:8px; padding:0.5rem 0.75rem; text-align:center; color:#ff9999; font-size:0.78rem; font-weight:600;">
+              South 🀁 — You 😊<br><span style="font-size:0.65rem; opacity:0.7;">2nd to draw</span>
+            </div>
+          </div>
+          <!-- Arrow labels -->
+          <div style="display:flex; justify-content:space-between; margin-top:0.6rem;">
+            <div style="color:rgba(255,255,255,0.5); font-size:0.65rem;">← Your right = person before you (you can Chow their discard)</div>
+          </div>
+        </div>
+        <div style="margin-top:1rem; display:flex; flex-wrap:wrap; gap:0.75rem; justify-content:center;">
+          <div style="background:rgba(0,0,0,0.3); border-radius:6px; padding:0.4rem 0.75rem; color:rgba(255,255,255,0.8); font-size:0.75rem;">
+            ↺ <strong>Anti-clockwise:</strong> Turn order (East → North → West → South)
+          </div>
+          <div style="background:rgba(0,0,0,0.3); border-radius:6px; padding:0.4rem 0.75rem; color:rgba(255,255,255,0.8); font-size:0.75rem;">
+            ↻ <strong>Clockwise:</strong> Wind seat rotation each round
+          </div>
+        </div>
+      </div>
+
+      <div class="info-box green" style="margin-top:0.5rem;">
+        <strong>🧠 Memory Trick</strong>
+        "Play goes against the clock, winds go with the clock." Anti-clockwise for turns, clockwise for wind rotation.
+      </div>
+
+      <h3>Step 1: Shuffle & Build the Wall</h3>
+      <ul class="rules-list">
+        <li>Shuffle ALL 144 tiles face-down on the table</li>
+        <li>Each player builds the wall in front of them — <strong>2 tiles high</strong>, with lengths alternating: <strong>East & West build 19 wide, North & South build 18 wide</strong></li>
+        <li>Total: 19 + 18 + 19 + 18 = <strong>74 stacks × 2 high = 148 tile positions</strong> (4 spare — this is correct)</li>
+        <li>Push all 4 rows together to form a square "wall" in the center</li>
+      </ul>
+
+      <!-- Wall diagram -->
+      <div style="background:#fff; border:1.5px solid #e0d0b0; border-radius:10px; padding:1.25rem; margin:0.75rem 0; overflow-x:auto;">
+        <div style="text-align:center; font-size:0.72rem; text-transform:uppercase; letter-spacing:0.1em; color:#888; margin-bottom:0.75rem;">The Wall — How It Looks from Above</div>
+        <div style="max-width:420px; margin:0 auto; position:relative;">
+          <!-- North wall (18 wide) -->
+          <div style="display:flex; gap:2px; justify-content:center; margin-bottom:2px;">
+            <div style="font-size:0.6rem; color:#888; writing-mode:vertical-rl; transform:rotate(180deg); margin-right:4px; align-self:center;">North (18)</div>
+            <div style="display:flex; gap:1px;">
+              <div style="background:#4A148C; width:10px; height:16px; border-radius:1px; opacity:0.85;"></div>
+              <div style="background:#4A148C; width:10px; height:16px; border-radius:1px; opacity:0.85;"></div>
+              <div style="background:#4A148C; width:10px; height:16px; border-radius:1px; opacity:0.85;"></div>
+              <div style="background:#4A148C; width:10px; height:16px; border-radius:1px; opacity:0.85;"></div>
+              <div style="background:#4A148C; width:10px; height:16px; border-radius:1px; opacity:0.85;"></div>
+              <div style="background:#4A148C; width:10px; height:16px; border-radius:1px; opacity:0.85;"></div>
+              <div style="background:#4A148C; width:10px; height:16px; border-radius:1px; opacity:0.85;"></div>
+              <div style="background:#4A148C; width:10px; height:16px; border-radius:1px; opacity:0.85;"></div>
+              <div style="background:#4A148C; width:10px; height:16px; border-radius:1px; opacity:0.85;"></div>
+              <div style="background:#4A148C; width:10px; height:16px; border-radius:1px; opacity:0.85;"></div>
+              <div style="background:#4A148C; width:10px; height:16px; border-radius:1px; opacity:0.85;"></div>
+              <div style="background:#4A148C; width:10px; height:16px; border-radius:1px; opacity:0.85;"></div>
+              <div style="background:#4A148C; width:10px; height:16px; border-radius:1px; opacity:0.85;"></div>
+              <div style="background:#4A148C; width:10px; height:16px; border-radius:1px; opacity:0.85;"></div>
+              <div style="background:#4A148C; width:10px; height:16px; border-radius:1px; opacity:0.85;"></div>
+              <div style="background:#4A148C; width:10px; height:16px; border-radius:1px; opacity:0.85;"></div>
+              <div style="background:#4A148C; width:10px; height:16px; border-radius:1px; opacity:0.85;"></div>
+              <div style="background:#4A148C; width:10px; height:16px; border-radius:1px; opacity:0.85;"></div>
+            </div>
+            <div style="font-size:0.6rem; color:#888; align-self:center; margin-left:4px;">18 stacks</div>
+          </div>
+          <!-- Middle row with East/West walls -->
+          <div style="display:flex; gap:4px; align-items:center; justify-content:center; margin:2px 0;">
+            <!-- East wall (19) — vertical -->
+            <div style="display:flex; flex-direction:column; gap:1px;">
+              <div style="font-size:0.55rem; color:#888; text-align:center;">East</div>
+              <div style="font-size:0.55rem; color:var(--gold); text-align:center; font-weight:700;">(19)</div>
+              <div style="display:flex; flex-direction:column; gap:1px;">
+                <div style="background:var(--gold); width:16px; height:8px; border-radius:1px; opacity:0.9;"></div>
+                <div style="background:var(--gold); width:16px; height:8px; border-radius:1px; opacity:0.9;"></div>
+                <div style="background:var(--gold); width:16px; height:8px; border-radius:1px; opacity:0.9;"></div>
+                <div style="background:var(--gold); width:16px; height:8px; border-radius:1px; opacity:0.9;"></div>
+                <div style="background:var(--gold); width:16px; height:8px; border-radius:1px; opacity:0.9;"></div>
+                <div style="background:var(--gold); width:16px; height:8px; border-radius:1px; opacity:0.9;"></div>
+                <div style="background:var(--gold); width:16px; height:8px; border-radius:1px; opacity:0.9;"></div>
+                <div style="background:var(--gold); width:16px; height:8px; border-radius:1px; opacity:0.9;"></div>
+                <div style="background:var(--gold); width:16px; height:8px; border-radius:1px; opacity:0.9;"></div>
+                <div style="background:var(--gold); width:16px; height:8px; border-radius:1px; opacity:0.9;"></div>
+                <div style="background:var(--gold); width:16px; height:8px; border-radius:1px; opacity:0.9;"></div>
+                <div style="background:var(--gold); width:16px; height:8px; border-radius:1px; opacity:0.9;"></div>
+                <div style="background:var(--gold); width:16px; height:8px; border-radius:1px; opacity:0.9;"></div>
+                <div style="background:var(--gold); width:16px; height:8px; border-radius:1px; opacity:0.9;"></div>
+                <div style="background:var(--gold); width:16px; height:8px; border-radius:1px; opacity:0.9;"></div>
+                <div style="background:var(--gold); width:16px; height:8px; border-radius:1px; opacity:0.9;"></div>
+                <div style="background:var(--gold); width:16px; height:8px; border-radius:1px; opacity:0.9;"></div>
+                <div style="background:var(--gold); width:16px; height:8px; border-radius:1px; opacity:0.9;"></div>
+                <div style="background:var(--gold); width:16px; height:8px; border-radius:1px; opacity:0.9;"></div>
+              </div>
+            </div>
+            <!-- Center table -->
+            <div style="flex:1; background:var(--green-felt); background-image:repeating-linear-gradient(45deg,transparent,transparent 5px,rgba(0,0,0,0.05) 5px,rgba(0,0,0,0.05) 6px); border-radius:6px; height:160px; display:flex; align-items:center; justify-content:center; border:1px solid rgba(255,255,255,0.1);">
+              <div style="text-align:center; color:rgba(255,255,255,0.5); font-size:0.7rem; line-height:1.8;">
+                🀄<br>Discard<br>pile goes<br>here
+              </div>
+            </div>
+            <!-- West wall (19) — vertical -->
+            <div style="display:flex; flex-direction:column; gap:1px;">
+              <div style="font-size:0.55rem; color:#888; text-align:center;">West</div>
+              <div style="font-size:0.55rem; color:#1565C0; text-align:center; font-weight:700;">(19)</div>
+              <div style="display:flex; flex-direction:column; gap:1px;">
+                <div style="background:#1565C0; width:16px; height:8px; border-radius:1px; opacity:0.9;"></div>
+                <div style="background:#1565C0; width:16px; height:8px; border-radius:1px; opacity:0.9;"></div>
+                <div style="background:#1565C0; width:16px; height:8px; border-radius:1px; opacity:0.9;"></div>
+                <div style="background:#1565C0; width:16px; height:8px; border-radius:1px; opacity:0.9;"></div>
+                <div style="background:#1565C0; width:16px; height:8px; border-radius:1px; opacity:0.9;"></div>
+                <div style="background:#1565C0; width:16px; height:8px; border-radius:1px; opacity:0.9;"></div>
+                <div style="background:#1565C0; width:16px; height:8px; border-radius:1px; opacity:0.9;"></div>
+                <div style="background:#1565C0; width:16px; height:8px; border-radius:1px; opacity:0.9;"></div>
+                <div style="background:#1565C0; width:16px; height:8px; border-radius:1px; opacity:0.9;"></div>
+                <div style="background:#1565C0; width:16px; height:8px; border-radius:1px; opacity:0.9;"></div>
+                <div style="background:#1565C0; width:16px; height:8px; border-radius:1px; opacity:0.9;"></div>
+                <div style="background:#1565C0; width:16px; height:8px; border-radius:1px; opacity:0.9;"></div>
+                <div style="background:#1565C0; width:16px; height:8px; border-radius:1px; opacity:0.9;"></div>
+                <div style="background:#1565C0; width:16px; height:8px; border-radius:1px; opacity:0.9;"></div>
+                <div style="background:#1565C0; width:16px; height:8px; border-radius:1px; opacity:0.9;"></div>
+                <div style="background:#1565C0; width:16px; height:8px; border-radius:1px; opacity:0.9;"></div>
+                <div style="background:#1565C0; width:16px; height:8px; border-radius:1px; opacity:0.9;"></div>
+                <div style="background:#1565C0; width:16px; height:8px; border-radius:1px; opacity:0.9;"></div>
+                <div style="background:#1565C0; width:16px; height:8px; border-radius:1px; opacity:0.9;"></div>
+              </div>
+            </div>
+          </div>
+          <!-- South wall (18 wide) -->
+          <div style="display:flex; gap:2px; justify-content:center; margin-top:2px;">
+            <div style="font-size:0.6rem; color:var(--red); writing-mode:vertical-rl; transform:rotate(180deg); margin-right:4px; align-self:center; font-weight:700;">South (18) YOU</div>
+            <div style="display:flex; gap:1px;">
+              <div style="background:var(--red); width:10px; height:16px; border-radius:1px; opacity:0.85;"></div>
+              <div style="background:var(--red); width:10px; height:16px; border-radius:1px; opacity:0.85;"></div>
+              <div style="background:var(--red); width:10px; height:16px; border-radius:1px; opacity:0.85;"></div>
+              <div style="background:var(--red); width:10px; height:16px; border-radius:1px; opacity:0.85;"></div>
+              <div style="background:var(--red); width:10px; height:16px; border-radius:1px; opacity:0.85;"></div>
+              <div style="background:var(--red); width:10px; height:16px; border-radius:1px; opacity:0.85;"></div>
+              <div style="background:var(--red); width:10px; height:16px; border-radius:1px; opacity:0.85;"></div>
+              <div style="background:var(--red); width:10px; height:16px; border-radius:1px; opacity:0.85;"></div>
+              <div style="background:var(--red); width:10px; height:16px; border-radius:1px; opacity:0.85;"></div>
+              <div style="background:var(--red); width:10px; height:16px; border-radius:1px; opacity:0.85;"></div>
+              <div style="background:var(--red); width:10px; height:16px; border-radius:1px; opacity:0.85;"></div>
+              <div style="background:var(--red); width:10px; height:16px; border-radius:1px; opacity:0.85;"></div>
+              <div style="background:var(--red); width:10px; height:16px; border-radius:1px; opacity:0.85;"></div>
+              <div style="background:var(--red); width:10px; height:16px; border-radius:1px; opacity:0.85;"></div>
+              <div style="background:var(--red); width:10px; height:16px; border-radius:1px; opacity:0.85;"></div>
+              <div style="background:var(--red); width:10px; height:16px; border-radius:1px; opacity:0.85;"></div>
+              <div style="background:var(--red); width:10px; height:16px; border-radius:1px; opacity:0.85;"></div>
+              <div style="background:var(--red); width:10px; height:16px; border-radius:1px; opacity:0.85;"></div>
+            </div>
+            <div style="font-size:0.6rem; color:#888; align-self:center; margin-left:4px;">18 stacks</div>
+          </div>
+        </div>
+        <div style="margin-top:0.75rem; display:flex; flex-wrap:wrap; gap:0.5rem; justify-content:center; font-size:0.72rem;">
+          <span style="display:flex; align-items:center; gap:4px;"><span style="background:var(--gold); width:14px; height:8px; border-radius:2px; display:inline-block;"></span> East — 19 stacks</span>
+          <span style="display:flex; align-items:center; gap:4px;"><span style="background:var(--red); width:14px; height:8px; border-radius:2px; display:inline-block;"></span> South — 18 stacks</span>
+          <span style="display:flex; align-items:center; gap:4px;"><span style="background:#1565C0; width:14px; height:8px; border-radius:2px; display:inline-block;"></span> West — 19 stacks</span>
+          <span style="display:flex; align-items:center; gap:4px;"><span style="background:#4A148C; width:14px; height:8px; border-radius:2px; display:inline-block;"></span> North — 18 stacks</span>
+        </div>
+        <div style="margin-top:0.5rem; text-align:center; font-size:0.72rem; color:#888;">Each stack = 2 tiles high &nbsp;|&nbsp; Total: 19+18+19+18 = 74 stacks × 2 = <strong>148 tile slots</strong></div>
+      </div>
+
+      <div class="info-box red">
+        <strong>⚠️ Why 148 slots for 144 tiles?</strong>
+        The 4 extra slots are intentional — they account for the corner overlaps where walls meet. Some tables have East & West do 19, and North & South do 18. The important thing: <strong>your aunties will tell you exactly how they do it</strong> — just follow the host's setup! 😄
+      </div>
+
+      <h3>Step 2: Determine East (Dealer)</h3>
+      <ul class="rules-list">
+        <li>Roll the dice to determine who is East (the dealer) for the first round</li>
+        <li>East goes first and deals tiles</li>
+        <li>After East loses a round, the East seat passes <strong>clockwise</strong> (to the player on East's left)</li>
+        <li>The wind round advances when all 4 players have been East once</li>
+      </ul>
+
+      <h3>Step 3: Deal the Tiles (Anti-Clockwise)</h3>
+      <ul class="rules-list">
+        <li>Roll dice again to determine where to break the wall (your starting draw point)</li>
+        <li>Deal tiles in groups of 4, going <strong>anti-clockwise</strong>: East gets 4 → North gets 4 → West gets 4 → South gets 4</li>
+        <li>Repeat 3 more times (so everyone has 12 tiles)</li>
+        <li>East draws 2 more tiles (getting 14 total); everyone else draws 1 more tile (getting 13 total)</li>
+      </ul>
+
+      <div class="info-box">
+        <strong>💡 Why does East get 14?</strong>
+        East starts with 14 tiles because they go first. Everyone else has 13. On your turn, you draw to get 14, then discard to return to 13. Simple!
+      </div>
+
+      <h3>Step 4: Reveal Flowers</h3>
+      <ul class="rules-list">
+        <li>After dealing, each player checks for flower/season tiles</li>
+        <li>Place any flowers face-up in front of you, then draw replacement tile(s) from the <strong>back of the wall</strong></li>
+        <li>Repeat until you have no more flowers in your hand</li>
+        <li>East begins play once all flowers are declared</li>
+      </ul>
+
+      <div class="info-box red">
+        <strong>🎲 The Dice Rule (Breaking the Wall)</strong>
+        After determining East, roll the dice again. Count that number of stacks from the <strong>right end</strong> of East's wall — that's your break point. Drawing begins from the LEFT side of that break, going anti-clockwise. The right side of the break becomes the "kong end" (back of wall) for replacement draws. Don't overthink this as a beginner — just let experienced players guide you the first time!
+      </div>
+
+      <div class="nav-buttons">
+        <button class="btn btn-prev" onclick="goToSection(1)">← Back</button>
+        <button class="btn btn-next" onclick="goToSection(3)">How to Play →</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- SECTION 4: How to Play (Turns) -->
+  <div class="section-card" id="section-3">
+    <div class="card-header">
+      <div class="step-number">四</div>
+      <div class="card-header-text">
+        <h2>How Each Turn Works</h2>
+        <p>Draw → Decide → Discard. That's it!</p>
+      </div>
+    </div>
+    <div class="card-body">
+      <p class="intro-text">Play goes <strong>anti-clockwise</strong>. Your turn is straightforward: draw a tile, decide if you want it, discard one you don't need.</p>
+
+      <div class="turn-flow">
+        <div class="flow-step"><span class="flow-icon">🧱</span>Draw tile</div>
+        <div class="flow-arrow">→</div>
+        <div class="flow-step"><span class="flow-icon">🤔</span>Can I win?<br><small>Check for Hu!</small></div>
+        <div class="flow-arrow">→</div>
+        <div class="flow-step"><span class="flow-icon">🌸</span>Flower?<br><small>Reveal + redraw</small></div>
+        <div class="flow-arrow">→</div>
+        <div class="flow-step"><span class="flow-icon">🗑️</span>Discard one<br><small>Face-up center</small></div>
+      </div>
+
+      <h3>But Wait — You Can Steal Discards!</h3>
+      <p class="intro-text">When someone discards a tile, the OTHER players can grab it. Here's the priority order:</p>
+
+      <div class="meld-grid">
+        <div class="meld-card">
+          <div class="meld-name">🥇 Hu (胡)</div>
+          <div class="meld-cn">Win — highest priority</div>
+          <div class="meld-desc">Any player can declare Hu if the discarded tile completes their winning hand. <strong>Always beats everything.</strong></div>
+        </div>
+        <div class="meld-card">
+          <div class="meld-name">🥈 Kong (槓)</div>
+          <div class="meld-cn">4 of a kind</div>
+          <div class="meld-desc">Any player who has 3 tiles matching the discard can declare Kong. Draw a replacement from the back wall.</div>
+        </div>
+        <div class="meld-card">
+          <div class="meld-name">🥉 Pong (碰)</div>
+          <div class="meld-cn">3 of a kind</div>
+          <div class="meld-desc">Any player who has 2 matching tiles can Pong any discard. Reveal the set, then discard a tile.</div>
+        </div>
+        <div class="meld-card">
+          <div class="meld-name">Chow (吃)</div>
+          <div class="meld-cn">Run of 3</div>
+          <div class="meld-desc"><strong>Only the next player</strong> (the one whose turn it would be) can Chow. Forms a sequence in the same suit.</div>
+        </div>
+      </div>
+
+      <div class="info-box">
+        <strong>📌 Key Rule: Chow is Lower Priority</strong>
+        If two players want a tile — one for Pong and one for Chow — <strong>Pong wins</strong>. Hu always wins over everything. If nobody claims a discard, the next player simply draws from the wall.
+      </div>
+
+      <div class="info-box red">
+        <strong>🇸🇬 Singapore Rule: Chow Restriction + Direction</strong>
+        Because play moves <strong>anti-clockwise</strong>, the player who acts just <em>before</em> you sits to your <strong>right</strong>. You can ONLY Chow from the player on your <strong>right</strong> (i.e. the one who just discarded). You cannot Chow from across the table or from your left.
+        <br><br>
+        <em>Memory aid: "Chow only from the RIGHT — because they go before you, and play goes anti-clockwise."</em>
+      </div>
+
+      <div class="info-box" style="background:linear-gradient(135deg,#f0f4ff,#f5f8ff); border-color:#1565C0;">
+        <strong>🔄 Anti-Clockwise Play — Visualised</strong>
+        Sitting as <strong>South</strong>: your right = East (they go before you), your left = West (they go after you).<br>
+        Turn order: <strong>East → North → West → South → East…</strong><br>
+        So when East discards, North can Chow it. When North discards, West can Chow it. When West discards, South (you!) can Chow it.
+      </div>
+
+      <h3>Declaring a Meld (Open Hand)</h3>
+      <ul class="rules-list">
+        <li>When you Pong, Chow, or Kong, you reveal the meld face-up in front of you</li>
+        <li>Your hand is now "open" — this limits some winning patterns you can claim</li>
+        <li>After revealing, <strong>discard one tile</strong> to bring your hand back to the right count</li>
+      </ul>
+
+      <div class="quiz-section">
+        <h3>Quick Check 🤔</h3>
+        <p class="quiz-q">Player South discards a tile. Player West has 2 of the same tile and wants to Pong. Player East wants to Chow (it completes a sequence). Who gets the tile?</p>
+        <div class="quiz-options" id="q2">
+          <button class="quiz-opt" onclick="checkQuiz(this, 'q2', false)">East (Chow) — it's East's turn next</button>
+          <button class="quiz-opt" onclick="checkQuiz(this, 'q2', true)">West (Pong) — Pong beats Chow</button>
+          <button class="quiz-opt" onclick="checkQuiz(this, 'q2', false)">South keeps it and redraws</button>
+          <button class="quiz-opt" onclick="checkQuiz(this, 'q2', false)">Dice roll decides</button>
+        </div>
+        <div class="quiz-feedback" id="q2-feedback"></div>
+      </div>
+
+      <div class="nav-buttons">
+        <button class="btn btn-prev" onclick="goToSection(2)">← Back</button>
+        <button class="btn btn-next" onclick="goToSection(4)">Winning Hands →</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- SECTION 5: Winning Hands -->
+  <div class="section-card" id="section-4">
+    <div class="card-header">
+      <div class="step-number">五</div>
+      <div class="card-header-text">
+        <h2>Winning Hands</h2>
+        <p>What does a complete hand actually look like?</p>
+      </div>
+    </div>
+    <div class="card-body">
+      <p class="intro-text">
+        A standard winning hand is <strong>4 sets + 1 pair</strong>. A "set" is either a Pong (3 of a kind), Kong (4 of a kind), or Chow (sequence of 3 in same suit).
+      </p>
+
+      <h3>Standard Win Example</h3>
+      <div class="winning-display">
+        <div class="win-label">4 Sets + 1 Pair = WIN! 胡！</div>
+        <div style="display:flex; flex-wrap:wrap; gap:1.5rem; justify-content:center; margin-top:0.75rem;">
+          <div>
+            <div class="tile-label">Chow (Sequence)</div>
+            <div class="tile-row" style="justify-content:center">
+              <div class="tile bamboo"><span class="tile-top">🀒</span><span class="tile-bot">3</span></div>
+              <div class="tile bamboo"><span class="tile-top">🀓</span><span class="tile-bot">4</span></div>
+              <div class="tile bamboo"><span class="tile-top">🀔</span><span class="tile-bot">5</span></div>
+            </div>
+          </div>
+          <div>
+            <div class="tile-label">Pong (Triplet)</div>
+            <div class="tile-row" style="justify-content:center">
+              <div class="tile circles"><span class="tile-top">🀜</span><span class="tile-bot">4</span></div>
+              <div class="tile circles"><span class="tile-top">🀜</span><span class="tile-bot">4</span></div>
+              <div class="tile circles"><span class="tile-top">🀜</span><span class="tile-bot">4</span></div>
+            </div>
+          </div>
+          <div>
+            <div class="tile-label">Chow (Sequence)</div>
+            <div class="tile-row" style="justify-content:center">
+              <div class="tile chars"><span class="tile-top">🀈</span><span class="tile-bot">2</span></div>
+              <div class="tile chars"><span class="tile-top">🀉</span><span class="tile-bot">3</span></div>
+              <div class="tile chars"><span class="tile-top">🀊</span><span class="tile-bot">4</span></div>
+            </div>
+          </div>
+          <div>
+            <div class="tile-label">Pong (Triplet)</div>
+            <div class="tile-row" style="justify-content:center">
+              <div class="tile wind"><span class="tile-top">🀀</span><span class="tile-bot">East</span></div>
+              <div class="tile wind"><span class="tile-top">🀀</span><span class="tile-bot">East</span></div>
+              <div class="tile wind"><span class="tile-top">🀀</span><span class="tile-bot">East</span></div>
+            </div>
+          </div>
+          <div>
+            <div class="tile-label">Pair (Eyes)</div>
+            <div class="tile-row" style="justify-content:center">
+              <div class="tile dragon"><span class="tile-top">🀄</span><span class="tile-bot">Red</span></div>
+              <div class="tile dragon"><span class="tile-top">🀄</span><span class="tile-bot">Red</span></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <h3>Special Winning Patterns <span class="sg-tag">Singapore</span></h3>
+      <div class="meld-grid">
+        <div class="meld-card">
+          <div class="meld-name">All Pongs (碰碰胡)</div>
+          <div class="meld-cn">Pong Pong Hu</div>
+          <div class="meld-desc">All 4 sets are Pongs (triplets). No sequences at all. Worth more points!</div>
+        </div>
+        <div class="meld-card">
+          <div class="meld-name">Pure Hand (清一色)</div>
+          <div class="meld-cn">Qīng Yī Sè</div>
+          <div class="meld-desc">All tiles from ONE suit only (all bamboo, all circles, OR all characters). Big bonus!</div>
+        </div>
+        <div class="meld-card">
+          <div class="meld-name">Self-Draw (自摸)</div>
+          <div class="meld-cn">Zì Mō</div>
+          <div class="meld-desc">You draw the winning tile yourself from the wall. ALL other players pay you, not just one!</div>
+        </div>
+        <div class="meld-card">
+          <div class="meld-name">Heavenly Hand (天胡)</div>
+          <div class="meld-cn">Tiān Hú</div>
+          <div class="meld-desc">East wins with their initial 14 tiles, before discarding anything. Extremely rare. Massive payout!</div>
+        </div>
+        <div class="meld-card">
+          <div class="meld-name">All Honours (字一色)</div>
+          <div class="meld-cn">Zì Yī Sè</div>
+          <div class="meld-desc">Hand made entirely of Wind and Dragon tiles. Very hard to get!</div>
+        </div>
+        <div class="meld-card">
+          <div class="meld-name">Closed Hand Win (門清)</div>
+          <div class="meld-cn">Mén Qīng</div>
+          <div class="meld-desc">You win on a discard without having any open melds (no Pong/Chow declared). Bonus points!</div>
+        </div>
+      </div>
+
+      <div class="info-box green">
+        <strong>✅ Beginner Strategy</strong>
+        As a beginner, aim for the standard hand (4 sets + 1 pair). Don't over-chase special patterns. The most important skill is <strong>reading what tiles you're missing</strong> and whether it's realistic to complete your hand!
+      </div>
+
+      <div class="nav-buttons">
+        <button class="btn btn-prev" onclick="goToSection(3)">← Back</button>
+        <button class="btn btn-next" onclick="goToSection(5)">Scoring →</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- SECTION 6: Scoring -->
+  <div class="section-card" id="section-5">
+    <div class="card-header">
+      <div class="step-number">六</div>
+      <div class="card-header-text">
+        <h2>Scoring & Payment</h2>
+        <p>How points translate to who pays whom</p>
+      </div>
+    </div>
+    <div class="card-body">
+      <p class="intro-text">
+        Singapore Mahjong scoring uses <strong>"tai" (台)</strong> as the unit. Most games have a <strong>minimum of 3 tai</strong> to win. Each tai has a dollar value agreed before the game.
+      </p>
+
+      <div class="info-box">
+        <strong>💰 Example Game Value</strong>
+        If 1 tai = $0.50, then a 3-tai win = <strong>$1.50 per payer</strong>. The loser (person who discarded the winning tile) pays you 3× that. Others may pay reduced amounts.
+      </div>
+
+      <h3>Who Pays?</h3>
+      <ul class="rules-list">
+        <li><strong>Win on discard:</strong> Only the player who discarded the winning tile pays you</li>
+        <li><strong>Self-draw (自摸):</strong> ALL 3 other players pay you — this is why it's more valuable!</li>
+        <li>When East wins or East pays, the amount is often <strong>doubled</strong> (East premium)</li>
+      </ul>
+
+      <h3>Tai (台) Reference Table</h3>
+      <table class="score-table">
+        <thead>
+          <tr>
+            <th>Pattern</th>
+            <th>Tai 台</th>
+            <th>Notes</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr><td>Base win (minimum)</td><td class="pts">3 tai</td><td>Minimum to declare Hu in most SG games</td></tr>
+          <tr><td>Self-draw (自摸)</td><td class="pts">+1 tai</td><td>All players pay</td></tr>
+          <tr><td>Your seat wind (門風)</td><td class="pts">+1 tai</td><td>Pong of your own seat wind tile</td></tr>
+          <tr><td>Round wind (圈風)</td><td class="pts">+1 tai</td><td>Pong of the current round wind</td></tr>
+          <tr><td>Each Dragon Pong</td><td class="pts">+1 tai</td><td>Per dragon triplet in your hand</td></tr>
+          <tr><td>Each Flower/Season</td><td class="pts">+1 tai</td><td>Per matching flower/season tile</td></tr>
+          <tr><td>All Pongs (碰碰胡)</td><td class="pts">+3 tai</td><td>All sets are triplets</td></tr>
+          <tr><td>Closed Hand (門清)</td><td class="pts">+1 tai</td><td>Win with no open melds</td></tr>
+          <tr><td>Pure Suit (清一色)</td><td class="pts">+3–5 tai</td><td>All tiles one suit</td></tr>
+          <tr><td>All Kongs (槓上開花)</td><td class="pts">+2 tai</td><td>Win after a Kong draw</td></tr>
+          <tr><td>Heavenly Hand (天胡)</td><td class="pts">Dealer wins all</td><td>East wins with starting 14 tiles</td></tr>
+        </tbody>
+      </table>
+
+      <div class="info-box green">
+        <strong>✅ Minimum Tai Rule — 1 Tai to Win</strong>
+        In Singapore Mahjong, the minimum is typically <strong>1 tai</strong> to declare Hu — meaning any valid winning hand qualifies. Some stricter tables play 3 tai minimum, but the standard SG home game is <strong>1 tai</strong>. Always confirm with your host before the game starts!
+      </div>
+
+      <h3>🐱🐭🐓🐛 Animal Bonuses — Paid Immediately, Mid-Game</h3>
+      <p style="font-size:0.93rem; color:#3a2010; line-height:1.65; margin-bottom:0.75rem;">
+        Animal bonuses are <strong>separate from tai scoring</strong>. They are collected live during the game the moment you have a predator pair — you don't wait for someone to win.
+      </p>
+
+      <div style="display:grid; grid-template-columns:1fr 1fr; gap:0.75rem; margin:0.75rem 0;">
+        <div style="background:linear-gradient(135deg,#fff8f0,#fff3e8); border:2px solid #E65100; border-radius:10px; padding:1rem; text-align:center;">
+          <div style="font-size:1.6rem; margin-bottom:0.2rem;">🐱 + 🐭</div>
+          <div style="font-family:'Noto Serif SC',serif; font-weight:700; color:#E65100; font-size:0.95rem;">猫咬老鼠</div>
+          <div style="font-size:0.75rem; color:#888; margin:0.2rem 0 0.5rem; font-style:italic;">"Cat bites Mouse"</div>
+          <div style="background:rgba(230,81,0,0.1); border-radius:6px; padding:0.4rem; font-size:0.82rem; color:#4a2000; font-weight:600;">
+            All 3 others pay you<br>the agreed animal rate
+          </div>
+        </div>
+        <div style="background:linear-gradient(135deg,#f0f8f0,#e8f5e8); border:2px solid #2E7D32; border-radius:10px; padding:1rem; text-align:center;">
+          <div style="font-size:1.6rem; margin-bottom:0.2rem;">🐓 + 🐛</div>
+          <div style="font-family:'Noto Serif SC',serif; font-weight:700; color:#2E7D32; font-size:0.95rem;">鸡咬蜈蚣</div>
+          <div style="font-size:0.75rem; color:#888; margin:0.2rem 0 0.5rem; font-style:italic;">"Rooster bites Centipede"</div>
+          <div style="background:rgba(46,125,50,0.1); border-radius:6px; padding:0.4rem; font-size:0.82rem; color:#003a10; font-weight:600;">
+            All 3 others pay you<br>the agreed animal rate
+          </div>
+        </div>
+      </div>
+
+      <table class="score-table" style="margin-top:0.5rem;">
+        <thead>
+          <tr><th>Animal Situation</th><th>Payout</th><th>Notes</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>🐱 Cat alone</td><td class="pts">1× animal rate</td><td>Collect from all 3 players when revealed</td></tr>
+          <tr><td>🐭 Mouse alone</td><td class="pts">1× animal rate</td><td>Collect from all 3 players when revealed</td></tr>
+          <tr><td>🐓 Rooster alone</td><td class="pts">1× animal rate</td><td>Collect from all 3 players when revealed</td></tr>
+          <tr><td>🐛 Centipede alone</td><td class="pts">1× animal rate</td><td>Collect from all 3 players when revealed</td></tr>
+          <tr><td>🐱+🐭 猫咬老鼠</td><td class="pts" style="color:var(--red);">2× or bonus rate</td><td>Cat owner gets extra from Mouse owner (predator bonus); or just double rate — agree beforehand!</td></tr>
+          <tr><td>🐓+🐛 鸡咬蜈蚣</td><td class="pts" style="color:var(--bamboo);">2× or bonus rate</td><td>Rooster owner gets extra from Centipede owner (predator bonus); or just double rate — agree beforehand!</td></tr>
+          <tr><td>All 4 animals</td><td class="pts">Table rules vary</td><td>Some tables pay a jackpot; agree before game starts</td></tr>
+        </tbody>
+      </table>
+
+      <div class="info-box">
+        <strong>📌 Note on 猫咬老鼠 rules</strong>
+        Different households play this differently! The most common Singapore version: if you hold Cat 🐱, you <em>bite</em> the Mouse holder — meaning the Mouse holder pays you an extra amount on top of the normal animal payout. Same for 鸡咬蜈蚣. <strong>Always agree on the exact rules before the game starts.</strong>
+      </div>
+
+      <h3>Payment Example</h3>
+      <div class="info-box">
+        🎯 <strong>Scenario:</strong> You win with a 5-tai hand by self-draw. Game value = $0.20/tai.<br><br>
+        Each other player pays: 5 tai × $0.20 = <strong>$1.00</strong><br>
+        Total you receive: 3 players × $1.00 = <strong>$3.00</strong> 🎉<br><br>
+        <em>Earlier in the same game</em>, you had 🐱+🐭 猫咬老鼠 (animal rate $1 each):<br>
+        All 3 players paid $1 each = <strong>+$3.00</strong> collected mid-game already 💸
+      </div>
+
+      <div class="nav-buttons">
+        <button class="btn btn-prev" onclick="goToSection(4)">← Back</button>
+        <button class="btn btn-next" onclick="goToSection(6)">Key Rules →</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- SECTION 7: Key Rules & Etiquette -->
+  <div class="section-card" id="section-6">
+    <div class="card-header">
+      <div class="step-number">七</div>
+      <div class="card-header-text">
+        <h2>Key Rules & Etiquette</h2>
+        <p>Don't be the blur one at the table</p>
+      </div>
+    </div>
+    <div class="card-body">
+      <p class="intro-text">Knowing the rules is one thing; knowing table etiquette is another. These will save you from awkward moments!</p>
+
+      <h3>Important Rules</h3>
+      <ul class="rules-list">
+        <li><strong>Chuck (放炮 Fàng Pào):</strong> If you discard the tile that lets someone win, you've "chucked" — you pay the full amount alone</li>
+        <li><strong>False Hu penalty:</strong> Declaring Hu when you don't actually have a valid winning hand is a penalty — you pay everyone a fixed amount</li>
+        <li><strong>Dead hand:</strong> If you've exposed tiles incorrectly, your hand may be "dead" — you can still play but cannot win the round</li>
+        <li><strong>Kong replacement:</strong> After declaring a Kong, always draw from the BACK of the wall, not the front</li>
+        <li><strong>Robbing a Kong:</strong> If someone upgrades a Pong to a Kong using a tile you need to Hu, you CAN steal it for your win!</li>
+      </ul>
+
+      <h3>🤝 Table Etiquette</h3>
+      <ul class="rules-list">
+        <li>Discard tiles <strong>face-up and clearly</strong> so everyone can see</li>
+        <li>Announce "Pong!", "Chow!", "Kong!", or "Hu!" loudly and clearly before picking up the tile</li>
+        <li>Don't touch the discarded tile before announcing your claim</li>
+        <li>Arrange your open melds neatly in front of you for all to see</li>
+        <li>Keep your hand tiles hidden — don't flash them to other players</li>
+        <li>Don't take too long — "playing slowly" (慢慢打) is frowned upon</li>
+        <li>If you're almost winning, don't hint or celebrate early — bad luck! 🙅</li>
+      </ul>
+
+      <h3>🇸🇬 Singapore-Specific Rules (vs HK/Chinese)</h3>
+      <div class="cheatsheet-grid">
+        <div class="cs-item">
+          <div class="cs-title">Min Tai Required</div>
+          <div class="cs-val">Usually 3 tai minimum to declare Hu. HK style uses "fan" instead.</div>
+        </div>
+        <div class="cs-item">
+          <div class="cs-title">Chow Restriction</div>
+          <div class="cs-val">Only the player whose turn it would be can Chow (left of discarder).</div>
+        </div>
+        <div class="cs-item">
+          <div class="cs-title">Flowers</div>
+          <div class="cs-val">Flowers give bonus tai. Always draw replacement from back wall.</div>
+        </div>
+        <div class="cs-item">
+          <div class="cs-title">East Premium</div>
+          <div class="cs-val">When East wins or East pays, amounts are typically doubled.</div>
+        </div>
+        <div class="cs-item">
+          <div class="cs-title">No Jokers</div>
+          <div class="cs-val">Singapore Mahjong does not use Joker tiles (unlike some variations).</div>
+        </div>
+        <div class="cs-item">
+          <div class="cs-title">Payment</div>
+          <div class="cs-val">Only the chucker pays on a discard win. All 3 pay on self-draw.</div>
+        </div>
+      </div>
+
+      <div class="quiz-section">
+        <h3>Quick Check 🤔</h3>
+        <p class="quiz-q">You discard a tile and Player North immediately declares "Hu!" and wins. Who pays North?</p>
+        <div class="quiz-options" id="q3">
+          <button class="quiz-opt" onclick="checkQuiz(this, 'q3', false)">All 3 other players pay equally</button>
+          <button class="quiz-opt" onclick="checkQuiz(this, 'q3', true)">Only YOU pay (you chucked)</button>
+          <button class="quiz-opt" onclick="checkQuiz(this, 'q3', false)">Nobody pays — it's a draw win</button>
+          <button class="quiz-opt" onclick="checkQuiz(this, 'q3', false)">The player to North's left pays</button>
+        </div>
+        <div class="quiz-feedback" id="q3-feedback"></div>
+      </div>
+
+      <div class="nav-buttons">
+        <button class="btn btn-prev" onclick="goToSection(5)">← Back</button>
+        <button class="btn btn-next" onclick="goToSection(7)">Cheat Sheet →</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- SECTION 8: Cheat Sheet & Summary -->
+  <div class="section-card" id="section-7">
+    <div class="card-header">
+      <div class="step-number">八</div>
+      <div class="card-header-text">
+        <h2>Quick Reference & Tips</h2>
+        <p>Your cheat sheet for the first few games</p>
+      </div>
+    </div>
+    <div class="card-body">
+      <div class="completion-card">
+        <div class="big-emoji">🎊</div>
+        <h2>You're Ready to Play!</h2>
+        <p>Here's everything you need to remember at a glance</p>
+      </div>
+
+      <h3>📋 Your Turn Flow</h3>
+      <div class="turn-flow" style="margin-bottom:1.5rem;">
+        <div class="flow-step"><span class="flow-icon">🧱</span>1. Draw</div>
+        <div class="flow-arrow">→</div>
+        <div class="flow-step"><span class="flow-icon">🌸</span>2. Flower/Animal?<br><small>Reveal + redraw</small></div>
+        <div class="flow-arrow">→</div>
+        <div class="flow-step"><span class="flow-icon">🐱</span>3. Predator pair?<br><small>Collect bonus!</small></div>
+        <div class="flow-arrow">→</div>
+        <div class="flow-step"><span class="flow-icon">🎯</span>4. Win?<br><small>Declare Hu!</small></div>
+        <div class="flow-arrow">→</div>
+        <div class="flow-step"><span class="flow-icon">🗑️</span>5. Discard</div>
+      </div>
+
+      <h3>🐱 Animal Quick Reference <span class="sg-tag">SG Only</span></h3>
+      <div style="background:linear-gradient(135deg,#fffbf0,#fff8e6); border:2px solid var(--gold); border-radius:12px; padding:1rem 1.25rem; margin:0.5rem 0 1rem;">
+        <div style="display:grid; grid-template-columns:1fr 1fr; gap:0.75rem; margin-bottom:0.75rem;">
+          <div style="text-align:center; padding:0.5rem; background:rgba(230,81,0,0.08); border-radius:8px; border:1px solid rgba(230,81,0,0.3);">
+            <div style="font-size:1.4rem;">🐱 + 🐭</div>
+            <div style="font-family:'Noto Serif SC',serif; font-weight:700; color:#E65100; font-size:0.9rem; margin-top:0.2rem;">猫咬老鼠</div>
+            <div style="font-size:0.72rem; color:#888;">"Cat bites Mouse"</div>
+          </div>
+          <div style="text-align:center; padding:0.5rem; background:rgba(46,125,50,0.08); border-radius:8px; border:1px solid rgba(46,125,50,0.3);">
+            <div style="font-size:1.4rem;">🐓 + 🐛</div>
+            <div style="font-family:'Noto Serif SC',serif; font-weight:700; color:#2E7D32; font-size:0.9rem; margin-top:0.2rem;">鸡咬蜈蚣</div>
+            <div style="font-size:0.72rem; color:#888;">"Rooster bites Centipede"</div>
+          </div>
+        </div>
+        <div style="font-size:0.82rem; color:#4a3000; line-height:1.6; text-align:center;">
+          Each pair → <strong>ALL 3 players pay you</strong> the animal bonus immediately (mid-game, no need to wait for Hu)<br>
+          Single animal → collect once; predator pair → extra bonus (agree rate before game!)
+        </div>
+      </div>
+
+      <h3>🏆 Winning = 4 Sets + 1 Pair</h3>
+      <div class="cheatsheet-grid">
+        <div class="cs-item">
+          <div class="cs-title">Chow 吃</div>
+          <div class="cs-val">3 tiles in sequence, same suit<br>e.g. 3🀒 4🀓 5🀔 Bamboo</div>
+        </div>
+        <div class="cs-item">
+          <div class="cs-title">Pong 碰</div>
+          <div class="cs-val">3 identical tiles<br>e.g. 🀄🀄🀄 Red Dragon</div>
+        </div>
+        <div class="cs-item">
+          <div class="cs-title">Kong 槓</div>
+          <div class="cs-val">4 identical tiles (draw replacement from back)<br>e.g. 🀀🀀🀀🀀 East Wind</div>
+        </div>
+        <div class="cs-item">
+          <div class="cs-title">Pair 對</div>
+          <div class="cs-val">2 identical tiles (the "eyes")<br>Only 1 pair in a winning hand</div>
+        </div>
+      </div>
+
+      <h3>🗣️ Claim Priority (Highest → Lowest)</h3>
+      <div style="display:flex; flex-wrap:wrap; gap:0.6rem; margin:0.75rem 0;">
+        <div style="background:var(--red); color:#fff; border-radius:6px; padding:0.4rem 0.9rem; font-weight:700; font-size:0.85rem;">1. Hu 胡 (Win)</div>
+        <div style="color:#666; font-size:1.2rem; align-self:center;">›</div>
+        <div style="background:#8B6914; color:#fff; border-radius:6px; padding:0.4rem 0.9rem; font-weight:700; font-size:0.85rem;">2. Kong 槓</div>
+        <div style="color:#666; font-size:1.2rem; align-self:center;">›</div>
+        <div style="background:#1565C0; color:#fff; border-radius:6px; padding:0.4rem 0.9rem; font-weight:700; font-size:0.85rem;">3. Pong 碰</div>
+        <div style="color:#666; font-size:1.2rem; align-self:center;">›</div>
+        <div style="background:#2E7D32; color:#fff; border-radius:6px; padding:0.4rem 0.9rem; font-weight:700; font-size:0.85rem;">4. Chow 吃 (next player only)</div>
+      </div>
+
+      <h3>💡 Beginner Tips</h3>
+      <ul class="rules-list">
+        <li><strong>Stay flexible:</strong> Don't commit to one winning pattern too early. Keep your options open</li>
+        <li><strong>Track discards:</strong> Watch what others throw — if you need a tile 3 people have already discarded, you'll never get it</li>
+        <li><strong>Defend:</strong> If someone looks close to winning, avoid discarding tiles that complete triplets or pairs</li>
+        <li><strong>Value Pongs:</strong> Honour tiles (winds, dragons) are worth more — prioritise collecting matching ones</li>
+        <li><strong>Don't be shy:</strong> Shout "Pong!" or "Hu!" clearly. Better to be heard than to miss your claim!</li>
+        <li><strong>Ask questions:</strong> Your tablemates WANT you to learn — asking is totally fine for first-timers</li>
+      </ul>
+
+      <h3>🀄 Useful Mahjong Terms</h3>
+      <table class="score-table">
+        <thead><tr><th>English</th><th>Chinese</th><th>Pronunciation</th></tr></thead>
+        <tbody>
+          <tr><td>Win!</td><td>胡！</td><td>Hū!</td></tr>
+          <tr><td>Draw (sequence)</td><td>吃</td><td>Chī</td></tr>
+          <tr><td>Triplet</td><td>碰</td><td>Pèng</td></tr>
+          <tr><td>Four-of-a-kind</td><td>槓</td><td>Gàng</td></tr>
+          <tr><td>Self-draw win</td><td>自摸</td><td>Zì mō</td></tr>
+          <tr><td>Dealer/East</td><td>莊家</td><td>Zhuāng jiā</td></tr>
+          <tr><td>Discard</td><td>打出</td><td>Dǎ chū</td></tr>
+          <tr><td>The wall</td><td>牌墙</td><td>Pái qiáng</td></tr>
+          <tr><td>Eyes (pair)</td><td>雀頭</td><td>Que tóu</td></tr>
+          <tr><td>Chuck (you lose)</td><td>放炮</td><td>Fàng pào</td></tr>
+          <tr><td>Cat bites Mouse</td><td>猫咬老鼠</td><td>Māo yǎo lǎoshǔ</td></tr>
+          <tr><td>Rooster bites Centipede</td><td>鸡咬蜈蚣</td><td>Jī yǎo wúgōng</td></tr>
+          <tr><td>Animal tile</td><td>動物牌</td><td>Dòngwù pái</td></tr>
+        </tbody>
+      </table>
+
+      <div class="info-box green">
+        <strong>🌟 Final Word</strong>
+        Mahjong is a game of skill, memory, and a little luck. Your first few games will be confusing — that's completely normal. Focus on just completing a basic hand and understanding the flow. The strategy deepens with experience. Most importantly: have fun and enjoy the company! 牌桌上见！(See you at the table!)
+      </div>
+
+      <div class="nav-buttons">
+        <button class="btn btn-prev" onclick="goToSection(6)">← Back</button>
+        <button class="btn btn-next" onclick="goToSection(8)">💰 Calculator →</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- SECTION 9: Payment Calculator -->
+  <div class="section-card" id="section-8">
+    <div class="card-header">
+      <div class="step-number">九</div>
+      <div class="card-header-text">
+        <h2>Payment Calculator</h2>
+        <p>Work out exactly who pays how much</p>
+      </div>
+    </div>
+    <div class="card-body">
+      <p class="intro-text">Set your game stakes, count the tai, and this calculator will tell you exactly who owes what.</p>
+
+      <div id="calc-app" style="background:linear-gradient(135deg,#1a0a00,#2d1000); border-radius:14px; padding:1.5rem; border:2px solid var(--gold);">
+
+        <!-- Settings row -->
+        <div style="display:grid; grid-template-columns:1fr 1fr; gap:0.75rem; margin-bottom:1.25rem;">
+          <div>
+            <label style="color:rgba(255,255,255,0.6); font-size:0.72rem; letter-spacing:0.1em; text-transform:uppercase; display:block; margin-bottom:0.4rem;">💵 Value per Tai (SGD)</label>
+            <div style="display:flex; gap:0.4rem; flex-wrap:wrap;">
+              <button class="calc-preset active" data-val="0.10" onclick="setPreset(this,0.10)">$0.10</button>
+              <button class="calc-preset" data-val="0.20" onclick="setPreset(this,0.20)">$0.20</button>
+              <button class="calc-preset" data-val="0.50" onclick="setPreset(this,0.50)">$0.50</button>
+              <button class="calc-preset" data-val="1.00" onclick="setPreset(this,1.00)">$1.00</button>
+            </div>
+            <input type="number" id="taiValue" value="0.10" step="0.05" min="0.05"
+              style="margin-top:0.5rem; width:100%; background:rgba(255,255,255,0.08); border:1.5px solid rgba(255,255,255,0.2); border-radius:6px; color:#fff; padding:0.45rem 0.65rem; font-size:0.88rem; font-family:'DM Sans',sans-serif;"
+              oninput="calcPay()" placeholder="Custom $">
+          </div>
+          <div>
+            <label style="color:rgba(255,255,255,0.6); font-size:0.72rem; letter-spacing:0.1em; text-transform:uppercase; display:block; margin-bottom:0.4rem;">🀄 Tai Count</label>
+            <div style="display:flex; align-items:center; gap:0.5rem;">
+              <button onclick="adjustTai(-1)" style="background:rgba(255,255,255,0.1); border:1.5px solid rgba(255,255,255,0.2); color:#fff; border-radius:6px; width:36px; height:36px; font-size:1.2rem; cursor:pointer; flex-shrink:0;">−</button>
+              <input type="number" id="taiCount" value="3" min="1" max="30"
+                style="flex:1; text-align:center; background:rgba(255,255,255,0.08); border:1.5px solid rgba(255,255,255,0.2); border-radius:6px; color:#fff; padding:0.45rem; font-size:1.1rem; font-weight:700; font-family:'DM Sans',sans-serif;"
+                oninput="calcPay()">
+              <button onclick="adjustTai(1)" style="background:rgba(255,255,255,0.1); border:1.5px solid rgba(255,255,255,0.2); color:#fff; border-radius:6px; width:36px; height:36px; font-size:1.2rem; cursor:pointer; flex-shrink:0;">+</button>
+            </div>
+            <div style="margin-top:0.4rem;">
+              <label style="color:rgba(255,255,255,0.6); font-size:0.72rem; letter-spacing:0.1em; text-transform:uppercase; display:block; margin-bottom:0.3rem;">Quick Tai</label>
+              <div style="display:flex; gap:0.3rem; flex-wrap:wrap;">
+                <button class="calc-tai" onclick="setTai(1)">1</button>
+                <button class="calc-tai" onclick="setTai(2)">2</button>
+                <button class="calc-tai active" onclick="setTai(3)">3</button>
+                <button class="calc-tai" onclick="setTai(4)">4</button>
+                <button class="calc-tai" onclick="setTai(5)">5</button>
+                <button class="calc-tai" onclick="setTai(6)">6</button>
+                <button class="calc-tai" onclick="setTai(8)">8</button>
+                <button class="calc-tai" onclick="setTai(10)">10</button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Win type -->
+        <div style="margin-bottom:1.25rem;">
+          <label style="color:rgba(255,255,255,0.6); font-size:0.72rem; letter-spacing:0.1em; text-transform:uppercase; display:block; margin-bottom:0.5rem;">🏆 How Did You Win?</label>
+          <div style="display:grid; grid-template-columns:1fr 1fr; gap:0.5rem;">
+            <button id="btn-shooter" class="win-type-btn active" onclick="setWinType('shooter')">
+              <span style="font-size:1.3rem;">🎯</span>
+              <span style="font-weight:700; display:block;">Shooter Win</span>
+              <span style="font-size:0.72rem; opacity:0.7;">放炮 — someone chucked</span>
+            </button>
+            <button id="btn-self" class="win-type-btn" onclick="setWinType('self')">
+              <span style="font-size:1.3rem;">🤲</span>
+              <span style="font-weight:700; display:block;">Self-Draw 自摸</span>
+              <span style="font-size:0.72rem; opacity:0.7;">You drew the winning tile</span>
+            </button>
+          </div>
+        </div>
+
+        <!-- East toggle -->
+        <div style="margin-bottom:1.25rem; display:flex; gap:1rem; flex-wrap:wrap;">
+          <label style="display:flex; align-items:center; gap:0.5rem; cursor:pointer; color:rgba(255,255,255,0.8); font-size:0.88rem;">
+            <input type="checkbox" id="isEast" onchange="calcPay()" style="width:16px; height:16px; accent-color:var(--gold);">
+            <span>🀀 <strong>Winner is East</strong> (dealer doubles)</span>
+          </label>
+          <label style="display:flex; align-items:center; gap:0.5rem; cursor:pointer; color:rgba(255,255,255,0.8); font-size:0.88rem;">
+            <input type="checkbox" id="shooterIsEast" onchange="calcPay()" style="width:16px; height:16px; accent-color:var(--gold);" id="shooterEastCb">
+            <span>🀀 <strong>Shooter is East</strong> (dealer doubles)</span>
+          </label>
+        </div>
+
+        <!-- RESULT -->
+        <div id="calc-result" style="background:rgba(212,172,13,0.1); border:2px solid var(--gold); border-radius:12px; padding:1.25rem; margin-top:0.5rem;">
+          <div style="text-align:center; color:var(--gold); font-size:0.72rem; letter-spacing:0.15em; text-transform:uppercase; margin-bottom:1rem;">Payment Breakdown</div>
+          <div id="result-content"></div>
+        </div>
+
+        <!-- Tai builder -->
+        <div style="margin-top:1.25rem;">
+          <div style="color:rgba(255,255,255,0.6); font-size:0.72rem; letter-spacing:0.1em; text-transform:uppercase; margin-bottom:0.6rem;">🧮 Tai Builder — tap to add/remove</div>
+          <div style="display:flex; flex-wrap:wrap; gap:0.4rem;" id="tai-builder">
+            <button class="tai-chip" data-tai="1" onclick="toggleTaiChip(this)">Base Win +1</button>
+            <button class="tai-chip" data-tai="1" onclick="toggleTaiChip(this)">Self-Draw +1</button>
+            <button class="tai-chip" data-tai="1" onclick="toggleTaiChip(this)">Seat Wind +1</button>
+            <button class="tai-chip" data-tai="1" onclick="toggleTaiChip(this)">Round Wind +1</button>
+            <button class="tai-chip" data-tai="1" onclick="toggleTaiChip(this)">Dragon Pong +1</button>
+            <button class="tai-chip" data-tai="1" onclick="toggleTaiChip(this)">Dragon Pong #2 +1</button>
+            <button class="tai-chip" data-tai="1" onclick="toggleTaiChip(this)">Dragon Pong #3 +1</button>
+            <button class="tai-chip" data-tai="1" onclick="toggleTaiChip(this)">Flower Bonus +1</button>
+            <button class="tai-chip" data-tai="1" onclick="toggleTaiChip(this)">Flower #2 +1</button>
+            <button class="tai-chip" data-tai="1" onclick="toggleTaiChip(this)">Closed Hand +1</button>
+            <button class="tai-chip" data-tai="3" onclick="toggleTaiChip(this)">All Pongs +3</button>
+            <button class="tai-chip" data-tai="3" onclick="toggleTaiChip(this)">Pure Suit +3</button>
+            <button class="tai-chip" data-tai="2" onclick="toggleTaiChip(this)">Kong Draw +2</button>
+          </div>
+          <div style="margin-top:0.6rem; color:rgba(255,255,255,0.5); font-size:0.78rem;">
+            Tai from builder: <span id="builder-total" style="color:var(--gold); font-weight:700;">0</span> tai
+            <button onclick="resetBuilder()" style="margin-left:0.75rem; background:rgba(255,255,255,0.1); border:1px solid rgba(255,255,255,0.2); color:rgba(255,255,255,0.6); border-radius:4px; padding:0.15rem 0.5rem; font-size:0.72rem; cursor:pointer;">Reset</button>
+          </div>
+        </div>
+
+      </div>
+
+      <div class="nav-buttons">
+        <button class="btn btn-prev" onclick="goToSection(7)">← Back</button>
+        <button class="btn btn-next" onclick="goToSection(9)">House Rules →</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- SECTION 10: House Rules -->
+  <div class="section-card" id="section-9">
+    <div class="card-header">
+      <div class="step-number">十</div>
+      <div class="card-header-text">
+        <h2>Common House Rules</h2>
+        <p>Every family does it a little differently — here's what to ask before you sit down</p>
+      </div>
+    </div>
+    <div class="card-body">
+      <p class="intro-text">
+        Singapore Mahjong has no single "official" rulebook — every household, every group of aunties, every CNY table has its own tweaks. Knowing the common variants will save you from arguments (and accidental debt).
+      </p>
+
+      <div class="info-box green">
+        <strong>✅ Pro Tip: Ask These 5 Questions Before Every Game</strong>
+        1. What's the minimum tai to win? &nbsp;|&nbsp; 2. What's the tai value ($)?<br>
+        3. Are Animals included? &nbsp;|&nbsp; 4. Does East double? &nbsp;|&nbsp; 5. Any special winning hands?
+      </div>
+
+      <h3>🎯 Minimum Tai Variations</h3>
+      <table class="score-table">
+        <thead><tr><th>House Rule</th><th>How It Works</th><th>Common At</th></tr></thead>
+        <tbody>
+          <tr>
+            <td><strong>1 Tai Min</strong> ✅ Standard</td>
+            <td>Any valid winning hand can Hu. Most relaxed and beginner-friendly.</td>
+            <td>Most casual home games</td>
+          </tr>
+          <tr>
+            <td><strong>3 Tai Min</strong></td>
+            <td>Your hand must total ≥3 tai before you can declare Hu. Forces players to build stronger hands.</td>
+            <td>Stricter family tables, older generation</td>
+          </tr>
+          <tr>
+            <td><strong>No Min (0 Tai)</strong></td>
+            <td>Some ultra-casual games allow any valid 14-tile hand to win, even 0 tai. Rare.</td>
+            <td>Very casual / teaching games</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <h3>💰 Shooter & Payment Variants</h3>
+      <table class="score-table">
+        <thead><tr><th>House Rule</th><th>How It Works</th></tr></thead>
+        <tbody>
+          <tr>
+            <td><strong>Shooter pays all</strong> (Standard)</td>
+            <td>On a discard win (放炮), ONLY the person who chucked pays. Others pay nothing.</td>
+          </tr>
+          <tr>
+            <td><strong>Shooter pays double</strong></td>
+            <td>Shooter pays 2× normal. Others pay 1× each. Punishes careless discards harder.</td>
+          </tr>
+          <tr>
+            <td><strong>Split payment</strong></td>
+            <td>Shooter pays half; the other two non-winners split the other half. Softens the chuck penalty.</td>
+          </tr>
+          <tr>
+            <td><strong>Everyone pays on discard</strong></td>
+            <td>Even on a chuck, all 3 non-winners pay (like self-draw). Rare but exists.</td>
+          </tr>
+          <tr>
+            <td><strong>East doubles (莊家加倍)</strong></td>
+            <td>When East wins or East is the shooter, all payments are ×2. Very common SG rule.</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <h3>🀄 Winning Hand Variants</h3>
+      <table class="score-table">
+        <thead><tr><th>House Rule</th><th>Effect</th></tr></thead>
+        <tbody>
+          <tr>
+            <td><strong>Earthly Hand (地胡)</strong></td>
+            <td>South/West/North wins on their FIRST draw from the wall (before discarding). Massive payout like Heavenly Hand.</td>
+          </tr>
+          <tr>
+            <td><strong>Thirteen Orphans (十三么)</strong></td>
+            <td>Special hand: one each of 1/9 Bamboo, 1/9 Circles, 1/9 Characters, all 4 Winds, all 3 Dragons + 1 duplicate. If your table allows it, massive payout — often "pay-all" regardless of who wins.</td>
+          </tr>
+          <tr>
+            <td><strong>All Kong hand (十八羅漢)</strong></td>
+            <td>Four Kongs + 1 pair. Extremely rare. Most tables pay all three opponents a large fixed amount.</td>
+          </tr>
+          <tr>
+            <td><strong>Seven Pairs (七對)</strong></td>
+            <td>Seven distinct pairs instead of 4 sets + 1 pair. Not all tables allow this — ask first!</td>
+          </tr>
+          <tr>
+            <td><strong>Robbing the Kong (搶槓)</strong></td>
+            <td>If someone upgrades a Pong to a Kong with your winning tile, you can steal it for Hu. Most tables allow this.</td>
+          </tr>
+          <tr>
+            <td><strong>Last tile win (海底捞月)</strong></td>
+            <td>Winning on the very last tile drawn from the wall. +1 tai bonus at most tables.</td>
+          </tr>
+          <tr>
+            <td><strong>Win on replacement (嶺上開花)</strong></td>
+            <td>Winning on the tile drawn after a Kong. +1 or +2 tai bonus.</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <h3>🌸 Flower & Animal Variants</h3>
+      <table class="score-table">
+        <thead><tr><th>House Rule</th><th>Effect</th></tr></thead>
+        <tbody>
+          <tr>
+            <td><strong>Flowers included</strong> (Standard)</td>
+            <td>All 8 flower/season tiles used. Your matching flower (seat = flower number) gives +1 tai. Non-matching flowers give +1 tai too at some tables, or nothing at others.</td>
+          </tr>
+          <tr>
+            <td><strong>No flowers</strong></td>
+            <td>Some faster-paced games remove flowers entirely. Speeds up the game significantly.</td>
+          </tr>
+          <tr>
+            <td><strong>Animals included</strong></td>
+            <td>Cat/Mouse/Rooster/Centipede tiles added. Mid-game bonus collection. Common in SG/MY homes. Value per animal agreed before game.</td>
+          </tr>
+          <tr>
+            <td><strong>猫咬老鼠 — Cat bites Mouse</strong></td>
+            <td>If you hold Cat, you can "bite" the Mouse holder — they owe you an extra payment. Some tables: just holding both pays double. Agree before game!</td>
+          </tr>
+          <tr>
+            <td><strong>All 4 Animals jackpot</strong></td>
+            <td>If one player collects all 4 animals, they get an extra jackpot payment. Table-specific amount.</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <h3>🔄 Scoring & Multiplier Variants</h3>
+      <table class="score-table">
+        <thead><tr><th>House Rule</th><th>Effect</th></tr></thead>
+        <tbody>
+          <tr>
+            <td><strong>Cap at X tai</strong></td>
+            <td>Some tables cap maximum payout at e.g. 10 tai regardless of hand. Prevents runaway losses.</td>
+          </tr>
+          <tr>
+            <td><strong>Double on special hands</strong></td>
+            <td>Pure suit, all pongs etc. double the total payment instead of adding flat tai.</td>
+          </tr>
+          <tr>
+            <td><strong>Consecutive East bonus</strong></td>
+            <td>If East wins multiple rounds in a row, bonus multiplier stacks (×2, ×3…). Very punishing!</td>
+          </tr>
+          <tr>
+            <td><strong>Draw = no payment</strong></td>
+            <td>If the wall is exhausted with no winner (荒牌 Huāng Pái), nobody pays. Game just redeals.</td>
+          </tr>
+          <tr>
+            <td><strong>False Hu penalty</strong></td>
+            <td>If you declare Hu incorrectly, you pay each other player a fixed amount (usually 3 tai equivalent). Your hand is dead for the round.</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <div class="info-box red">
+        <strong>⚠️ The Golden Rule</strong>
+        When in doubt about any rule — <strong>ask before the game starts, not after you win.</strong> Arguing about rules mid-game or after payment is the fastest way to ruin the mood. Most experienced players are happy to explain their house rules upfront!
+      </div>
+
+      <div class="info-box">
+        <strong>🇸🇬 Classic Singapore CNY Table Setup</strong>
+        Most common combination you'll see at a Singapore home game:<br>
+        ✅ 1 tai minimum &nbsp;|&nbsp; ✅ $0.10–$0.20/tai &nbsp;|&nbsp; ✅ Animals included &nbsp;|&nbsp; ✅ East doubles &nbsp;|&nbsp; ✅ Shooter pays all &nbsp;|&nbsp; ✅ Flowers included &nbsp;|&nbsp; ✅ Seven Pairs allowed
+      </div>
+
+      <div class="nav-buttons">
+        <button class="btn btn-prev" onclick="goToSection(8)">← Back</button>
+        <button class="btn btn-next" onclick="goToSection(7)" style="background:var(--red); color:#fff;">⭐ Cheat Sheet</button>
+      </div>
+    </div>
+  </div>
+</main>
+
+<style>
+.calc-preset {
+  background: rgba(255,255,255,0.08);
+  border: 1.5px solid rgba(255,255,255,0.2);
+  color: rgba(255,255,255,0.7);
+  border-radius: 6px;
+  padding: 0.3rem 0.6rem;
+  font-size: 0.78rem;
+  font-family: 'DM Sans', sans-serif;
+  cursor: pointer;
+  transition: all 0.15s;
+}
+.calc-preset.active, .calc-preset:hover {
+  background: rgba(212,172,13,0.25);
+  border-color: var(--gold);
+  color: var(--gold);
+  font-weight: 700;
+}
+.calc-tai {
+  background: rgba(255,255,255,0.08);
+  border: 1.5px solid rgba(255,255,255,0.15);
+  color: rgba(255,255,255,0.7);
+  border-radius: 6px;
+  padding: 0.25rem 0.5rem;
+  font-size: 0.78rem;
+  font-family: 'DM Sans', sans-serif;
+  cursor: pointer;
+  min-width: 32px;
+  transition: all 0.15s;
+}
+.calc-tai.active, .calc-tai:hover {
+  background: rgba(212,172,13,0.25);
+  border-color: var(--gold);
+  color: var(--gold);
+  font-weight: 700;
+}
+.win-type-btn {
+  background: rgba(255,255,255,0.06);
+  border: 2px solid rgba(255,255,255,0.15);
+  color: rgba(255,255,255,0.7);
+  border-radius: 10px;
+  padding: 0.75rem 1rem;
+  font-family: 'DM Sans', sans-serif;
+  cursor: pointer;
+  text-align: center;
+  transition: all 0.2s;
+  line-height: 1.4;
+}
+.win-type-btn.active {
+  background: rgba(212,172,13,0.15);
+  border-color: var(--gold);
+  color: #fff;
+}
+.win-type-btn:hover { border-color: rgba(212,172,13,0.5); }
+.tai-chip {
+  background: rgba(255,255,255,0.07);
+  border: 1.5px solid rgba(255,255,255,0.15);
+  color: rgba(255,255,255,0.65);
+  border-radius: 20px;
+  padding: 0.25rem 0.65rem;
+  font-size: 0.75rem;
+  font-family: 'DM Sans', sans-serif;
+  cursor: pointer;
+  transition: all 0.15s;
+}
+.tai-chip.active {
+  background: rgba(192,57,43,0.25);
+  border-color: var(--red);
+  color: #ff9999;
+  font-weight: 600;
+}
+.pay-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0.5rem 0;
+  border-bottom: 1px solid rgba(255,255,255,0.08);
+  font-size: 0.88rem;
+}
+.pay-row:last-child { border-bottom: none; }
+.pay-row .pay-label { color: rgba(255,255,255,0.75); }
+.pay-row .pay-amount { color: var(--gold); font-weight: 700; font-family: 'Playfair Display', serif; font-size: 1rem; }
+.pay-row .pay-amount.big { font-size: 1.25rem; color: #ffe082; }
+.pay-tag { display: inline-block; font-size: 0.62rem; background: rgba(192,57,43,0.4); color: #ff9999; border-radius: 4px; padding: 0.1rem 0.35rem; margin-left: 0.3rem; vertical-align: middle; }
+.pay-tag.green { background: rgba(46,125,50,0.4); color: #a5d6a7; }
+</style>
+
+<script>
+const steps = [
+  { label: "What is Mahjong", icon: "🀄" },
+  { label: "The Tiles", icon: "🃏" },
+  { label: "Setup", icon: "🎲" },
+  { label: "Taking Turns", icon: "🔄" },
+  { label: "Winning Hands", icon: "🏆" },
+  { label: "Scoring", icon: "💰" },
+  { label: "Rules & Etiquette", icon: "📜" },
+  { label: "Cheat Sheet", icon: "⭐" },
+  { label: "Calculator", icon: "🧮" },
+  { label: "House Rules", icon: "🏠" }
+];
+
+let currentSection = 0;
+const visited = new Set([0]);
+
+function renderNav() {
+  const container = document.getElementById('progressSteps');
+  container.innerHTML = steps.map((s, i) => `
+    <button class="step-btn ${i === currentSection ? 'active' : visited.has(i) ? 'done' : ''}" onclick="goToSection(${i})">
+      <span class="num">${i+1}</span>
+      ${s.icon} ${s.label}
+    </button>
+  `).join('');
+}
+
+function goToSection(n) {
+  document.getElementById(`section-${currentSection}`).classList.remove('active');
+  currentSection = n;
+  visited.add(n);
+  document.getElementById(`section-${n}`).classList.add('active');
+  renderNav();
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+const quizAnswers = {
+  q1: { correct: 1, feedback: { ok: "Correct! 14 tiles make a complete winning hand — that's 4 sets (3 tiles each = 12) + 1 pair (2 tiles) = 14. Simple math!", bad: "Not quite! A winning hand is 4 sets × 3 tiles + 1 pair × 2 tiles = 14 tiles total." }},
+  q2: { correct: 1, feedback: { ok: "Correct! Pong always beats Chow. Priority order is: Hu > Kong > Pong > Chow.", bad: "Nope! Pong (3 of a kind) beats Chow (sequence). The priority is Hu > Kong > Pong > Chow." }},
+  q3: { correct: 1, feedback: { ok: "Correct! When you chuck (放炮 — discard the winning tile), YOU alone pay the winner the full amount.", bad: "Not right! On a discard win, only the person who discarded the winning tile pays. That's called 'chucking' (放炮)." }}
+};
+
+function checkQuiz(btn, qId, isCorrect) {
+  const container = document.getElementById(qId);
+  const buttons = container.querySelectorAll('.quiz-opt');
+  buttons.forEach(b => b.disabled = true);
+
+  const feedback = document.getElementById(`${qId}-feedback`);
+  const data = quizAnswers[qId];
+
+  buttons.forEach((b, i) => {
+    if (i === data.correct) b.classList.add('correct');
+  });
+
+  if (!isCorrect) btn.classList.add('wrong');
+
+  feedback.className = `quiz-feedback show ${isCorrect ? 'ok' : 'bad'}`;
+  feedback.textContent = isCorrect ? '✅ ' + data.feedback.ok : '❌ ' + data.feedback.bad;
+}
+
+// ── CALCULATOR ──────────────────────────────────────
+let winType = 'shooter';
+let taiValue = 0.10;
+let builderTai = 0;
+
+function setPreset(btn, val) {
+  document.querySelectorAll('.calc-preset').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  document.getElementById('taiValue').value = val;
+  taiValue = val;
+  calcPay();
+}
+
+function setWinType(type) {
+  winType = type;
+  document.getElementById('btn-shooter').classList.toggle('active', type === 'shooter');
+  document.getElementById('btn-self').classList.toggle('active', type === 'self');
+  // Show/hide shooter-is-east checkbox
+  const cb = document.getElementById('shooterIsEast');
+  if (cb) cb.parentElement.style.opacity = type === 'shooter' ? '1' : '0.3';
+  calcPay();
+}
+
+function adjustTai(delta) {
+  const el = document.getElementById('taiCount');
+  let val = parseInt(el.value) + delta;
+  if (val < 1) val = 1;
+  el.value = val;
+  document.querySelectorAll('.calc-tai').forEach(b => b.classList.remove('active'));
+  calcPay();
+}
+
+function setTai(n) {
+  document.getElementById('taiCount').value = n;
+  document.querySelectorAll('.calc-tai').forEach(b => {
+    b.classList.toggle('active', parseInt(b.textContent) === n);
+  });
+  calcPay();
+}
+
+function toggleTaiChip(btn) {
+  btn.classList.toggle('active');
+  let total = 0;
+  document.querySelectorAll('.tai-chip.active').forEach(b => {
+    total += parseInt(b.dataset.tai);
+  });
+  builderTai = total;
+  document.getElementById('builder-total').textContent = total;
+  // Auto-set tai count from builder
+  if (total > 0) {
+    document.getElementById('taiCount').value = total;
+    document.querySelectorAll('.calc-tai').forEach(b => b.classList.remove('active'));
+    calcPay();
+  }
+}
+
+function resetBuilder() {
+  document.querySelectorAll('.tai-chip').forEach(b => b.classList.remove('active'));
+  builderTai = 0;
+  document.getElementById('builder-total').textContent = '0';
+}
+
+function fmt(n) { return '$' + n.toFixed(2); }
+
+function calcPay() {
+  const tai = Math.max(1, parseInt(document.getElementById('taiCount').value) || 1);
+  const tv = parseFloat(document.getElementById('taiValue').value) || 0.10;
+  const winnerIsEast = document.getElementById('isEast').checked;
+  const shooterIsEast = document.getElementById('shooterIsEast') && document.getElementById('shooterIsEast').checked;
+
+  const baseAmt = tai * tv;
+  const winnerMult = winnerIsEast ? 2 : 1;
+
+  let html = '';
+
+  if (winType === 'shooter') {
+    // Shooter pays. If shooter is East, shooter pays double.
+    const shooterMult = shooterIsEast ? 2 : 1;
+    const shooterPays = baseAmt * winnerMult * shooterMult;
+    const otherPay = 0;
+    const total = shooterPays;
+
+    html += `<div class="pay-row"><span class="pay-label">🎯 Tai count</span><span class="pay-amount">${tai} tai</span></div>`;
+    html += `<div class="pay-row"><span class="pay-label">💵 Rate per tai</span><span class="pay-amount">${fmt(tv)}</span></div>`;
+    html += `<div class="pay-row"><span class="pay-label">📐 Base amount</span><span class="pay-amount">${fmt(baseAmt)}</span></div>`;
+    if (winnerIsEast) html += `<div class="pay-row"><span class="pay-label">🀀 East winner ×2</span><span class="pay-amount">×2 applied</span></div>`;
+    if (shooterIsEast) html += `<div class="pay-row"><span class="pay-label">🀀 East shooter ×2</span><span class="pay-amount">×2 applied</span></div>`;
+    html += `<div style="border-top:1px solid rgba(212,172,13,0.3); margin:0.6rem 0;"></div>`;
+    html += `<div class="pay-row"><span class="pay-label">🎯 Shooter pays <span class="pay-tag">放炮</span></span><span class="pay-amount big">${fmt(shooterPays)}</span></div>`;
+    html += `<div class="pay-row"><span class="pay-label">👥 Others pay</span><span class="pay-amount">$0.00</span></div>`;
+    html += `<div class="pay-row" style="margin-top:0.25rem;"><span class="pay-label" style="font-weight:700; color:#fff;">🏆 Winner receives</span><span class="pay-amount big" style="color:#ffe082;">${fmt(total)}</span></div>`;
+  } else {
+    // Self-draw: all 3 pay
+    const eachPays = baseAmt * winnerMult;
+    const total = eachPays * 3;
+
+    html += `<div class="pay-row"><span class="pay-label">🤲 Win type</span><span class="pay-amount">Self-Draw 自摸</span></div>`;
+    html += `<div class="pay-row"><span class="pay-label">🀄 Tai count</span><span class="pay-amount">${tai} tai</span></div>`;
+    html += `<div class="pay-row"><span class="pay-label">💵 Rate per tai</span><span class="pay-amount">${fmt(tv)}</span></div>`;
+    html += `<div class="pay-row"><span class="pay-label">📐 Base amount</span><span class="pay-amount">${fmt(baseAmt)}</span></div>`;
+    if (winnerIsEast) html += `<div class="pay-row"><span class="pay-label">🀀 East winner ×2</span><span class="pay-amount">×2 applied</span></div>`;
+    html += `<div style="border-top:1px solid rgba(212,172,13,0.3); margin:0.6rem 0;"></div>`;
+    html += `<div class="pay-row"><span class="pay-label">👤 Each player pays <span class="pay-tag green">×3 players</span></span><span class="pay-amount big">${fmt(eachPays)}</span></div>`;
+    html += `<div class="pay-row" style="margin-top:0.25rem;"><span class="pay-label" style="font-weight:700; color:#fff;">🏆 Winner receives total</span><span class="pay-amount big" style="color:#ffe082;">${fmt(total)}</span></div>`;
+  }
+
+  document.getElementById('result-content').innerHTML = html;
+}
+
+// Init calculator on load
+window.addEventListener('load', () => { calcPay(); });
+
+renderNav();
+</script>
+</body>
+</html>
