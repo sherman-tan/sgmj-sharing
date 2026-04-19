@@ -1,2 +1,0 @@
-# sgmj-sharing
-SG Mahjong
